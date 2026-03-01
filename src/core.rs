@@ -7,6 +7,7 @@ use std::fmt::{Debug, Formatter};
 #[derive(Debug)]
 pub enum ScriptError {
     MissingInput,
+    UnsupportedInput,
     NotEvaluable,
     NotExecutable,
 }
@@ -20,7 +21,7 @@ pub enum Value {
     None,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum PortKind {
     Execution,
     Data,
