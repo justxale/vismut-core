@@ -98,7 +98,7 @@ impl ExecutionContext {
             }
         }
 
-        Ok(Value::None)
+        Err(ScriptError::MissingInput)
     }
 
     pub fn evaluate(
