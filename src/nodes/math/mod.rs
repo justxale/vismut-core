@@ -1,3 +1,3 @@
 mod operators;
 
-pub use operators::{AddNode, SubtractNode, DivideNode, MultiplyNode, ModuloNode, PowNode};
+pub use operators::{AddNode, DivideNode, ModuloNode, MultiplyNode, PowNode, SubtractNode};

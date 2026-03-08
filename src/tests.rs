@@ -1,13 +1,25 @@
-use crate::core::{ScriptError, Value, VisualScript};
+use crate::core::{NodeBehavior, ScriptError, Value, VisualScript};
 use crate::nodes::{AddNode, PrintNode, StartNode};
+use std::collections::HashMap;
 
 #[test]
 fn main() -> Result<(), ScriptError> {
     let mut script = VisualScript::new();
+    let mut add_node1 = AddNode::new();
+    add_node1.set_values(HashMap::from([
+        (String::from("a"), Some(Value::Int(10))),
+        (String::from("b"), Some(Value::Int(30)))
+    ]));
+    let mut add_node2 = AddNode::new();
+    add_node2.set_values(HashMap::from([
+        (String::from("a"), None),
+        (String::from("b"), Some(Value::Int(30)))
+    ]));
 
     let start = script.add_node("Start", Box::new(StartNode));
-    let add = script.add_node("Add", Box::new(AddNode::new(Some(Value::Int(10)), Some(Value::Int(30)))));
-    let add2 = script.add_node("Add", Box::new(AddNode::new(None, Some(Value::Int(30)))));
+    let add = script.add_node("Add", Box::new(add_node1));
+
+    let add2 = script.add_node("Add", Box::new(add_node2));
     let print = script.add_node("Print1", Box::new(PrintNode));
     let print2 = script.add_node("Print2", Box::new(PrintNode));
 

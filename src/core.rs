@@ -35,11 +35,17 @@ pub struct Port {
 }
 
 pub trait NodeBehavior {
+    fn new() -> Self
+    where
+        Self: Sized;
+
+    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>);
+
     fn execute(
         &self,
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
-        node: NodeIndex
+        node: NodeIndex,
     ) -> Result<(), ScriptError>;
 
     fn evaluate(
@@ -47,7 +53,7 @@ pub trait NodeBehavior {
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
-        output_port: &str
+        output_port: &str,
     ) -> Result<Value, ScriptError>;
 
     fn input_ports(&self) -> Vec<Port>;
@@ -130,7 +136,7 @@ impl VisualScript {
     pub fn new() -> Self {
         Self {
             graph: StableDiGraph::new(),
-            entry: None
+            entry: None,
         }
     }
 
