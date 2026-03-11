@@ -1,5 +1,5 @@
-use crate::core::ExecutionContext;
 use crate::core::{EdgeType, Node, NodeBehavior, Port, PortKind, ScriptError, Value};
+use crate::core::{ExecutionContext, NodeSchema};
 use petgraph::prelude::StableDiGraph;
 use petgraph::stable_graph::NodeIndex;
 use std::collections::HashMap;
@@ -10,8 +10,8 @@ pub struct AddNode {
 }
 
 impl NodeBehavior for AddNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -38,8 +38,6 @@ impl NodeBehavior for AddNode {
         let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
         let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
 
-        println!("{:?} {:?}", input_a, input_b);
-
         if let Value::Int(a) = input_a && let Value::Int(b) = input_b {
             return Ok(Value::Int(a + b));
         } else if let Value::Float(a) = input_a && let Value::Float(b) = input_b {
@@ -52,16 +50,19 @@ impl NodeBehavior for AddNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: String::from("a"), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: String::from("b"), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema
+    {
+        NodeSchema::new(
+            String::from("core.math.add"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("result"), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct SubtractNode {
@@ -70,8 +71,8 @@ pub struct SubtractNode {
 }
 
 impl NodeBehavior for SubtractNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -110,16 +111,19 @@ impl NodeBehavior for SubtractNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: "b".into(), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema
+    {
+        NodeSchema::new(
+            String::from("core.math.subtract"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct MultiplyNode {
@@ -128,8 +132,8 @@ pub struct MultiplyNode {
 }
 
 impl NodeBehavior for MultiplyNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -168,16 +172,18 @@ impl NodeBehavior for MultiplyNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: "b".into(), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.multiply"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct DivideNode {
@@ -192,8 +198,8 @@ impl DivideNode {
 }
 
 impl NodeBehavior for DivideNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(1) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -232,16 +238,18 @@ impl NodeBehavior for DivideNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: "b".into(), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.divide"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct ModuloNode {
@@ -250,8 +258,8 @@ pub struct ModuloNode {
 }
 
 impl NodeBehavior for ModuloNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(1) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -284,16 +292,18 @@ impl NodeBehavior for ModuloNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: "b".into(), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.modulo"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct PowNode {
@@ -302,8 +312,8 @@ pub struct PowNode {
 }
 
 impl NodeBehavior for PowNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0), b: Value::Int(1) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -342,16 +352,18 @@ impl NodeBehavior for PowNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-            Port { name: "b".into(), kind: PortKind::Data, constant: Some(self.b.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.power"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+                Port { name: String::from("b"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }
 
 pub struct AbsNode {
@@ -359,8 +371,8 @@ pub struct AbsNode {
 }
 
 impl NodeBehavior for AbsNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -394,13 +406,15 @@ impl NodeBehavior for AbsNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![
-            Port { name: "a".into(), kind: PortKind::Data, constant: Some(self.a.to_owned()) },
-        ]
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.absolute"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data }
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: "result".into(), kind: PortKind::Data, constant: None }]
-    }
-    fn is_pure(&self) -> bool { true }
 }

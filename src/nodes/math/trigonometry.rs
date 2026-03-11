@@ -1,4 +1,4 @@
-use crate::core::{EdgeType, ExecutionContext, Node, NodeBehavior, Port, PortKind, ScriptError, Value};
+use crate::core::{EdgeType, ExecutionContext, Node, NodeBehavior, NodeSchema, Port, PortKind, ScriptError, Value};
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use std::collections::HashMap;
@@ -8,8 +8,8 @@ pub struct SinNode {
 }
 
 impl NodeBehavior for SinNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -42,16 +42,16 @@ impl NodeBehavior for SinNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("a"), kind: PortKind::Data, constant: Some(self.a.to_owned()) }]
-    }
-
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("result"), kind: PortKind::Data, constant: None }]
-    }
-
-    fn is_pure(&self) -> bool {
-        true
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.sin"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
 }
 
@@ -60,8 +60,8 @@ pub struct CosNode {
 }
 
 impl NodeBehavior for CosNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -93,16 +93,16 @@ impl NodeBehavior for CosNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("a"), kind: PortKind::Data, constant: Some(self.a.to_owned()) }]
-    }
-
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("result"), kind: PortKind::Data, constant: None }]
-    }
-
-    fn is_pure(&self) -> bool {
-        true
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.cos"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
 }
 
@@ -111,8 +111,8 @@ pub struct TanNode {
 }
 
 impl NodeBehavior for TanNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -139,16 +139,16 @@ impl NodeBehavior for TanNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("a"), kind: PortKind::Data, constant: Some(self.a.to_owned()) }]
-    }
-
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("result"), kind: PortKind::Data, constant: None }]
-    }
-
-    fn is_pure(&self) -> bool {
-        true
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.tan"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
 }
 
@@ -157,8 +157,8 @@ pub struct CotNode {
 }
 
 impl NodeBehavior for CotNode {
-    fn new() -> Self {
-        Self { a: Value::Int(0) }
+    fn new() -> Box<dyn NodeBehavior> {
+        Box::new(Self { a: Value::Int(0) })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
@@ -191,15 +191,15 @@ impl NodeBehavior for CotNode {
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn input_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("a"), kind: PortKind::Data, constant: Some(self.a.to_owned()) }]
-    }
-
-    fn output_ports(&self) -> Vec<Port> {
-        vec![Port { name: String::from("result"), kind: PortKind::Data, constant: None }]
-    }
-
-    fn is_pure(&self) -> bool {
-        true
+    fn get_schema(&self) -> NodeSchema {
+        NodeSchema::new(
+            String::from("core.math.cot"), false, true,
+            vec![
+                Port { name: String::from("a"), kind: PortKind::Data },
+            ],
+            vec![
+                Port { name: String::from("result"), kind: PortKind::Data }
+            ],
+        )
     }
 }

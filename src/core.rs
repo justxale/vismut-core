@@ -1,6 +1,7 @@
 use petgraph::stable_graph::{NodeIndex, StableDiGraph};
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
@@ -21,21 +22,40 @@ pub enum Value {
     None,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum PortKind {
     Execution,
     Data,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Port {
     pub name: String,
     pub kind: PortKind,
-    pub constant: Option<Value>,
+    // pub constant: Option<Value>,
+}
+
+#[derive(Serialize, Clone)]
+pub struct NodeSchema {
+    node_id: String,
+    is_executable: bool,
+    is_evaluable: bool,
+    outputs: Vec<Port>,
+    inputs: Vec<Port>
+}
+
+impl NodeSchema {
+    pub fn new(node_id: String, is_executable: bool, is_evaluable: bool, inputs: Vec<Port>, outputs: Vec<Port>) -> Self {
+        Self { node_id, is_executable, is_evaluable, inputs, outputs }
+    }
+
+    pub fn get_id(&self) -> String {
+        self.node_id.clone()
+    }
 }
 
 pub trait NodeBehavior {
-    fn new() -> Self
+    fn new() -> Box<dyn NodeBehavior>
     where
         Self: Sized;
 
@@ -55,13 +75,9 @@ pub trait NodeBehavior {
         node: NodeIndex,
         output_port: &str,
     ) -> Result<Value, ScriptError>;
-
-    fn input_ports(&self) -> Vec<Port>;
-
-    fn output_ports(&self) -> Vec<Port>;
-
-    fn is_pure(&self) -> bool;
+    fn get_schema(&self) -> NodeSchema;
 }
+
 
 #[derive(Debug, Clone)]
 pub enum EdgeType {
@@ -182,7 +198,7 @@ impl VisualScript {
         );
     }
 
-    pub fn run(&mut self) -> Result<(), ScriptError> {
+    pub fn run(&mut self) -> Result<u32, ScriptError> {
         let mut current = self.entry.ok_or_else(|| panic!("No entry"))?;
         let mut ctx = ExecutionContext {
             cache: HashMap::new(),
@@ -193,28 +209,24 @@ impl VisualScript {
 
             match node {
                 Some(node) => {
-                    if !node.behavior.is_pure() {
+                    if node.behavior.get_schema().is_executable {
                         node.behavior.execute(&mut ctx, &self.graph, current)?;
                     }
                 }
                 _ => panic!()
             }
-
-
-            // clear cache per execution step (optional, like Blueprint tick)
             ctx.cache.clear();
 
             let next_exec = self.graph
                 .edges_directed(current, Direction::Outgoing)
                 .find(|e| matches!(e.weight(), EdgeType::Execution))
                 .map(|e| e.target());
-
             match next_exec {
                 Some(next) => current = next,
                 None => break,
             }
         }
 
-        Ok(())
+        Ok(0)
     }
 }
