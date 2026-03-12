@@ -45,27 +45,16 @@ impl NodeBehavior for AddNode {
         node: NodeIndex,
         _: &str,
     ) -> Result<Value, ScriptError> {
-        let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
-        let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
+        let input_a = ctx.get_input(node, graph, "a");
+        let input_b = ctx.get_input(node, graph, "b");
 
-        if let Value::Int(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Int(a + b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(a + b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Float(a + b as f32));
-        } else if let Value::Int(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(b + a as f32));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a + b)),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a + b)),
+            (Value::Int(a), Value::Float(b)) => Ok(Value::Float((*a as f32) + b)),
+            (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a + (*b as f32))),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -131,27 +120,16 @@ impl NodeBehavior for SubtractNode {
         node: NodeIndex,
         _: &str,
     ) -> Result<Value, ScriptError> {
-        let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
-        let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
+        let input_a = ctx.get_input(node, graph, "a");
+        let input_b = ctx.get_input(node, graph, "b");
 
-        if let Value::Int(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Int(a - b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(a - b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Float(a - b as f32));
-        } else if let Value::Int(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(b - a as f32));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a - b)),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a - b)),
+            (Value::Int(a), Value::Float(b)) => Ok(Value::Float((*a as f32) - b)),
+            (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a - (*b as f32))),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -220,24 +198,13 @@ impl NodeBehavior for MultiplyNode {
         let input_a = ctx.get_input(node, graph, "a");
         let input_b = ctx.get_input(node, graph, "b");
 
-        if let Ok(Value::Int(a)) = input_a
-            && let Ok(Value::Int(b)) = input_b
-        {
-            return Ok(Value::Int(a * b));
-        } else if let Ok(Value::Float(a)) = input_a
-            && let Ok(Value::Float(b)) = input_b
-        {
-            return Ok(Value::Float(a * b));
-        } else if let Ok(Value::Float(a)) = input_a
-            && let Ok(Value::Int(b)) = input_b
-        {
-            return Ok(Value::Float(a * b as f32));
-        } else if let Ok(Value::Int(a)) = input_a
-            && let Ok(Value::Float(b)) = input_b
-        {
-            return Ok(Value::Float(b * a as f32));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a * b)),
+            (Value::Int(a), Value::Float(b)) => Ok(Value::Float((*a as f32) * b)),
+            (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a * (*b as f32))),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a * b)),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -312,27 +279,16 @@ impl NodeBehavior for DivideNode {
         node: NodeIndex,
         _: &str,
     ) -> Result<Value, ScriptError> {
-        let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
-        let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
+        let input_a = ctx.get_input(node, graph, "a");
+        let input_b = ctx.get_input(node, graph, "b");
 
-        if let Value::Int(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Int(a / b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(a / b));
-        } else if let Value::Float(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Float(a / b as f32));
-        } else if let Value::Int(a) = input_a
-            && let Value::Float(b) = input_b
-        {
-            return Ok(Value::Float(b / a as f32));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a / b)),
+            (Value::Int(a), Value::Float(b)) => Ok(Value::Float((*a as f32) / b)),
+            (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a / (*b as f32))),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a / b)),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -398,15 +354,13 @@ impl NodeBehavior for ModuloNode {
         node: NodeIndex,
         _: &str,
     ) -> Result<Value, ScriptError> {
-        let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
-        let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
+        let input_a = ctx.get_input(node, graph, "a");
+        let input_b = ctx.get_input(node, graph, "b");
 
-        if let Value::Int(a) = input_a
-            && let Value::Int(b) = input_b
-        {
-            return Ok(Value::Int(a % b));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a % b)),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -475,24 +429,13 @@ impl NodeBehavior for PowNode {
         let input_a = ctx.get_input(node, graph, "a");
         let input_b = ctx.get_input(node, graph, "b");
 
-        if let Ok(Value::Int(a)) = input_a
-            && let Ok(Value::Int(b)) = input_b
-        {
-            return Ok(Value::Int(a.pow(b as u32)));
-        } else if let Ok(Value::Float(a)) = input_a
-            && let Ok(Value::Float(b)) = input_b
-        {
-            return Ok(Value::Float(a.powf(b)));
-        } else if let Ok(Value::Float(a)) = input_a
-            && let Ok(Value::Int(b)) = input_b
-        {
-            return Ok(Value::Float(a.powi(b)));
-        } else if let Ok(Value::Int(a)) = input_a
-            && let Ok(Value::Float(b)) = input_b
-        {
-            return Ok(Value::Float(b.powf(b)));
+        match (input_a.as_ref().unwrap_or(&self.a), input_b.as_ref().unwrap_or(&self.b)) {
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a ^ b)),
+            (Value::Int(a), Value::Float(b)) => Ok(Value::Float((*a as f32).powf(*b))),
+            (Value::Float(a), Value::Int(b)) => Ok(Value::Float((*a as f32).powi(*b))),
+            (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a.powf(*b))),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -552,13 +495,11 @@ impl NodeBehavior for AbsNode {
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
 
-        if let Ok(Value::Int(a)) = input_a {
-            return Ok(Value::Int(a.abs()));
+        match input_a.as_ref().unwrap_or(&self.a) {
+            Value::Int(a) => Ok(Value::Int(a.abs())),
+            Value::Float(a) => Ok(Value::Float(a.abs())),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        if let Ok(Value::Float(a)) = input_a {
-            return Ok(Value::Float(a.abs()));
-        }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {

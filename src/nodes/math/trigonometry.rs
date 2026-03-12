@@ -37,13 +37,11 @@ impl NodeBehavior for SinNode {
         _output_port: &str,
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
-        if let Ok(Value::Int(a)) = input_a {
-            return Ok(Value::Float((a as f32).sin()));
+        match input_a.as_ref().unwrap_or(&self.a) {
+            Value::Int(a) => Ok(Value::Float((*a as f32).sin())),
+            Value::Float(a) => Ok(Value::Float(a.sin())),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        if let Ok(Value::Float(a)) = input_a {
-            return Ok(Value::Float(a.sin()));
-        }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -95,13 +93,11 @@ impl NodeBehavior for CosNode {
         _output_port: &str,
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
-        if let Ok(Value::Int(a)) = input_a {
-            return Ok(Value::Float((a as f32).cos()));
+        match input_a.as_ref().unwrap_or(&self.a) {
+            Value::Int(a) => Ok(Value::Float((*a as f32).cos())),
+            Value::Float(a) => Ok(Value::Float(a.cos())),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        if let Ok(Value::Float(a)) = input_a {
-            return Ok(Value::Float(a.cos()));
-        }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -154,13 +150,11 @@ impl NodeBehavior for TanNode {
         output_port: &str,
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
-        if let Ok(Value::Int(a)) = input_a {
-            return Ok(Value::Float((a as f32).tan()));
+        match input_a.as_ref().unwrap_or(&self.a) {
+            Value::Int(a) => Ok(Value::Float((*a as f32).tan())),
+            Value::Float(a) => Ok(Value::Float(a.tan())),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        if let Ok(Value::Float(a)) = input_a {
-            return Ok(Value::Float(a.tan()));
-        }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
@@ -213,13 +207,11 @@ impl NodeBehavior for CotNode {
         _output_port: &str,
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
-        if let Ok(Value::Int(a)) = input_a {
-            return Ok(Value::Float((a as f32).tan().powi(-1)));
+        match input_a.as_ref().unwrap_or(&self.a) {
+            Value::Int(a) => Ok(Value::Float((*a as f32).tan().powi(-1))),
+            Value::Float(a) => Ok(Value::Float(a.tan().powi(-1))),
+            _ => Err(ScriptError::UnsupportedInput)
         }
-        if let Ok(Value::Float(a)) = input_a {
-            return Ok(Value::Float(a.tan().powi(-1)));
-        }
-        Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
