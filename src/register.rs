@@ -1,11 +1,13 @@
 use crate::core::Port;
 use crate::traits::NodeBehavior;
 use serde::Serialize;
+use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum RegisterError {
     AlreadyRegistered,
+    Failed,
 }
 
 #[derive(Serialize)]
@@ -15,12 +17,12 @@ pub struct RegisterSchema {
 }
 
 impl RegisterSchema {
-    fn new(nodes: &HashMap<String, (NodeSchema, fn() -> Box<dyn NodeBehavior>)>) -> Self {
+    fn new(nodes: Iter<String, (NodeSchema, fn() -> Box<dyn NodeBehavior>)>) -> Self {
         let mut schema = RegisterSchema {
             nodes: vec![],
             total: 0,
         };
-        for (id, (node, _)) in nodes {
+        for (_, (node, _)) in nodes.into_iter() {
             schema.nodes.push(node.clone());
             schema.total += 1;
         }
@@ -30,12 +32,14 @@ impl RegisterSchema {
 
 pub struct ExecutionEnvironment {
     nodes: HashMap<String, (NodeSchema, fn() -> Box<dyn NodeBehavior>)>,
+    cached_schema: Option<RegisterSchema>,
 }
 
 impl ExecutionEnvironment {
     pub fn new() -> Self {
         Self {
             nodes: HashMap::new(),
+            cached_schema: None,
         }
     }
 
@@ -51,8 +55,26 @@ impl ExecutionEnvironment {
         Ok(self)
     }
 
-    pub fn get_schema(&self) -> RegisterSchema {
-        RegisterSchema::new(&self.nodes)
+    pub fn include(
+        &mut self,
+        node_factories: &[fn() -> Box<dyn NodeBehavior>],
+    ) -> Result<&mut Self, RegisterError> {
+        for factory in node_factories {
+            if self.register(*factory).is_err() {
+                return Err(RegisterError::Failed);
+            }
+        }
+        Ok(self)
+    }
+
+    pub fn get_schema(&mut self) -> &RegisterSchema {
+        match self.cached_schema {
+            Some(ref schema) => schema,
+            None => {
+                self.cached_schema = Some(RegisterSchema::new(self.nodes.iter()));
+                self.cached_schema.as_ref().unwrap()
+            }
+        }
     }
 }
 

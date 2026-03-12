@@ -1,5 +1,5 @@
 use crate::core::{ScriptError, Value, VisualScript};
-use crate::nodes::{AddNode, PrintNode, StartNode, SubtractNode};
+use crate::nodes::{AddNode, PrintNode, StartNode, SubtractNode, MATH_NODES_FACTORIES};
 use crate::register::{ExecutionEnvironment, RegisterError};
 use crate::traits::NodeBehavior;
 use serde::Serialize;
@@ -40,7 +40,7 @@ fn main() -> Result<(), ScriptError> {
 #[test]
 fn test_register() -> Result<(), RegisterError> {
     let mut env = ExecutionEnvironment::new();
-    env.register(AddNode::new)?.register(SubtractNode::new)?;
+    env.include(&MATH_NODES_FACTORIES)?;
     println!("{:?}", serde_json::to_string(&env.get_schema()));
     Ok(())
 }
