@@ -1,8 +1,9 @@
-use crate::core::{EdgeType, ExecutionContext, Node, NodeBehavior, NodeSchema, Port, PortKind, ScriptError, Value};
+use crate::core::{EdgeType, ExecutionContext, Node, Port, PortKind, ScriptError, Value};
+use crate::register::NodeSchema;
+use crate::traits::NodeBehavior;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use std::collections::HashMap;
-
 pub struct SinNode {
     a: Value,
 }
@@ -13,7 +14,10 @@ impl NodeBehavior for SinNode {
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -44,13 +48,17 @@ impl NodeBehavior for SinNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.sin"), false, true,
-            vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-            ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            String::from("core.math.sin"),
+            false,
+            true,
+            vec![Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+            }],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -65,7 +73,10 @@ impl NodeBehavior for CosNode {
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
     fn execute(
         &self,
@@ -95,13 +106,17 @@ impl NodeBehavior for CosNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.cos"), false, true,
-            vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-            ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            String::from("core.math.cos"),
+            false,
+            true,
+            vec![Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+            }],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -116,7 +131,10 @@ impl NodeBehavior for TanNode {
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -128,7 +146,13 @@ impl NodeBehavior for TanNode {
         Err(ScriptError::NotExecutable)
     }
 
-    fn evaluate(&self, ctx: &mut ExecutionContext, graph: &StableDiGraph<Node, EdgeType>, node: NodeIndex, output_port: &str) -> Result<Value, ScriptError> {
+    fn evaluate(
+        &self,
+        ctx: &mut ExecutionContext,
+        graph: &StableDiGraph<Node, EdgeType>,
+        node: NodeIndex,
+        output_port: &str,
+    ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
         if let Ok(Value::Int(a)) = input_a {
             return Ok(Value::Float((a as f32).tan()));
@@ -141,13 +165,17 @@ impl NodeBehavior for TanNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.tan"), false, true,
-            vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-            ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            String::from("core.math.tan"),
+            false,
+            true,
+            vec![Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+            }],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -162,7 +190,10 @@ impl NodeBehavior for CotNode {
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -193,13 +224,17 @@ impl NodeBehavior for CotNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.cot"), false, true,
-            vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-            ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            String::from("core.math.cot"),
+            false,
+            true,
+            vec![Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+            }],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }

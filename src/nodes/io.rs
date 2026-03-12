@@ -1,8 +1,9 @@
-use crate::core::{EdgeType, ExecutionContext, Node, NodeBehavior, NodeSchema, Port, PortKind, ScriptError, Value};
+use crate::core::{EdgeType, ExecutionContext, Node, Port, PortKind, ScriptError, Value};
+use crate::register::NodeSchema;
+use crate::traits::NodeBehavior;
 use petgraph::prelude::StableDiGraph;
 use petgraph::stable_graph::NodeIndex;
 use std::collections::HashMap;
-
 pub struct StartNode;
 
 impl NodeBehavior for StartNode {
@@ -33,10 +34,14 @@ impl NodeBehavior for StartNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.io.start"), true, false, vec![],
-            vec![
-                Port { name: String::from("exec"), kind: PortKind::Execution }
-            ],
+            String::from("core.io.start"),
+            true,
+            false,
+            vec![],
+            vec![Port {
+                name: String::from("exec"),
+                kind: PortKind::Execution,
+            }],
         )
     }
 }
@@ -76,10 +81,20 @@ impl NodeBehavior for PrintNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.io.print"), true, false, vec![
-                Port { name: "value".into(), kind: PortKind::Data },
-                Port { name: String::from("exec"), kind: PortKind::Execution }
-            ], vec![],
+            String::from("core.io.print"),
+            true,
+            false,
+            vec![
+                Port {
+                    name: "value".into(),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("exec"),
+                    kind: PortKind::Execution,
+                },
+            ],
+            vec![],
         )
     }
 }

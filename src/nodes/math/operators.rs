@@ -1,9 +1,10 @@
-use crate::core::{EdgeType, Node, NodeBehavior, Port, PortKind, ScriptError, Value};
-use crate::core::{ExecutionContext, NodeSchema};
+use crate::core::ExecutionContext;
+use crate::core::{EdgeType, Node, Port, PortKind, ScriptError, Value};
+use crate::register::NodeSchema;
+use crate::traits::NodeBehavior;
 use petgraph::prelude::StableDiGraph;
 use petgraph::stable_graph::NodeIndex;
 use std::collections::HashMap;
-
 pub struct AddNode {
     a: Value,
     b: Value,
@@ -11,12 +12,21 @@ pub struct AddNode {
 
 impl NodeBehavior for AddNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(0),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -38,29 +48,45 @@ impl NodeBehavior for AddNode {
         let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
         let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
 
-        if let Value::Int(a) = input_a && let Value::Int(b) = input_b {
+        if let Value::Int(a) = input_a
+            && let Value::Int(b) = input_b
+        {
             return Ok(Value::Int(a + b));
-        } else if let Value::Float(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(a + b))
-        } else if let Value::Float(a) = input_a && let Value::Int(b) = input_b {
-            return Ok(Value::Float(a + b as f32))
-        } else if let Value::Int(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(b + a as f32))
+        } else if let Value::Float(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(a + b));
+        } else if let Value::Float(a) = input_a
+            && let Value::Int(b) = input_b
+        {
+            return Ok(Value::Float(a + b as f32));
+        } else if let Value::Int(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(b + a as f32));
         }
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn get_schema(&self) -> NodeSchema
-    {
+    fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.add"), false, true,
+            String::from("core.math.add"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -72,12 +98,21 @@ pub struct SubtractNode {
 
 impl NodeBehavior for SubtractNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(0),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -99,29 +134,45 @@ impl NodeBehavior for SubtractNode {
         let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
         let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
 
-        if let Value::Int(a) = input_a && let Value::Int(b) = input_b {
+        if let Value::Int(a) = input_a
+            && let Value::Int(b) = input_b
+        {
             return Ok(Value::Int(a - b));
-        } else if let Value::Float(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(a - b))
-        } else if let Value::Float(a) = input_a && let Value::Int(b) = input_b {
-            return Ok(Value::Float(a - b as f32))
-        } else if let Value::Int(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(b - a as f32))
+        } else if let Value::Float(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(a - b));
+        } else if let Value::Float(a) = input_a
+            && let Value::Int(b) = input_b
+        {
+            return Ok(Value::Float(a - b as f32));
+        } else if let Value::Int(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(b - a as f32));
         }
         Err(ScriptError::UnsupportedInput)
     }
 
-    fn get_schema(&self) -> NodeSchema
-    {
+    fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.subtract"), false, true,
+            String::from("core.math.subtract"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -133,12 +184,21 @@ pub struct MultiplyNode {
 
 impl NodeBehavior for MultiplyNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(0) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(0),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -160,28 +220,45 @@ impl NodeBehavior for MultiplyNode {
         let input_a = ctx.get_input(node, graph, "a");
         let input_b = ctx.get_input(node, graph, "b");
 
-        if let Ok(Value::Int(a)) = input_a && let Ok(Value::Int(b)) = input_b {
+        if let Ok(Value::Int(a)) = input_a
+            && let Ok(Value::Int(b)) = input_b
+        {
             return Ok(Value::Int(a * b));
-        } else if let Ok(Value::Float(a)) = input_a && let Ok(Value::Float(b)) = input_b {
-            return Ok(Value::Float(a * b))
-        } else if let Ok(Value::Float(a)) = input_a && let Ok(Value::Int(b)) = input_b {
-            return Ok(Value::Float(a * b as f32))
-        } else if let Ok(Value::Int(a)) = input_a && let Ok(Value::Float(b)) = input_b {
-            return Ok(Value::Float(b * a as f32))
+        } else if let Ok(Value::Float(a)) = input_a
+            && let Ok(Value::Float(b)) = input_b
+        {
+            return Ok(Value::Float(a * b));
+        } else if let Ok(Value::Float(a)) = input_a
+            && let Ok(Value::Int(b)) = input_b
+        {
+            return Ok(Value::Float(a * b as f32));
+        } else if let Ok(Value::Int(a)) = input_a
+            && let Ok(Value::Float(b)) = input_b
+        {
+            return Ok(Value::Float(b * a as f32));
         }
         Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.multiply"), false, true,
+            String::from("core.math.multiply"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -193,18 +270,30 @@ pub struct DivideNode {
 
 impl DivideNode {
     fn new(a: Option<Value>, b: Option<Value>) -> Self {
-        Self { a: a.unwrap_or(Value::Int(0)), b: b.unwrap_or(Value::Int(1)) }
+        Self {
+            a: a.unwrap_or(Value::Int(0)),
+            b: b.unwrap_or(Value::Int(1)),
+        }
     }
 }
 
 impl NodeBehavior for DivideNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(1),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(1)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(1))
+            .to_owned();
     }
 
     fn execute(
@@ -226,28 +315,45 @@ impl NodeBehavior for DivideNode {
         let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
         let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
 
-        if let Value::Int(a) = input_a && let Value::Int(b) = input_b {
+        if let Value::Int(a) = input_a
+            && let Value::Int(b) = input_b
+        {
             return Ok(Value::Int(a / b));
-        } else if let Value::Float(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(a / b))
-        } else if let Value::Float(a) = input_a && let Value::Int(b) = input_b {
-            return Ok(Value::Float(a / b as f32))
-        } else if let Value::Int(a) = input_a && let Value::Float(b) = input_b {
-            return Ok(Value::Float(b / a as f32))
+        } else if let Value::Float(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(a / b));
+        } else if let Value::Float(a) = input_a
+            && let Value::Int(b) = input_b
+        {
+            return Ok(Value::Float(a / b as f32));
+        } else if let Value::Int(a) = input_a
+            && let Value::Float(b) = input_b
+        {
+            return Ok(Value::Float(b / a as f32));
         }
         Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.divide"), false, true,
+            String::from("core.math.divide"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -259,12 +365,21 @@ pub struct ModuloNode {
 
 impl NodeBehavior for ModuloNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(1),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(1)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(1))
+            .to_owned();
     }
 
     fn execute(
@@ -286,7 +401,9 @@ impl NodeBehavior for ModuloNode {
         let input_a = ctx.get_input(node, graph, "a").unwrap_or(self.a.to_owned());
         let input_b = ctx.get_input(node, graph, "b").unwrap_or(self.b.to_owned());
 
-        if let Value::Int(a) = input_a && let Value::Int(b) = input_b {
+        if let Value::Int(a) = input_a
+            && let Value::Int(b) = input_b
+        {
             return Ok(Value::Int(a % b));
         }
         Err(ScriptError::UnsupportedInput)
@@ -294,14 +411,23 @@ impl NodeBehavior for ModuloNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.modulo"), false, true,
+            String::from("core.math.modulo"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -313,12 +439,21 @@ pub struct PowNode {
 
 impl NodeBehavior for PowNode {
     fn new() -> Box<dyn NodeBehavior> {
-        Box::new(Self { a: Value::Int(0), b: Value::Int(1) })
+        Box::new(Self {
+            a: Value::Int(0),
+            b: Value::Int(1),
+        })
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
-        self.b = defaults[&String::from("b")].as_ref().unwrap_or(&Value::Int(1)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
+        self.b = defaults[&String::from("b")]
+            .as_ref()
+            .unwrap_or(&Value::Int(1))
+            .to_owned();
     }
 
     fn execute(
@@ -340,28 +475,45 @@ impl NodeBehavior for PowNode {
         let input_a = ctx.get_input(node, graph, "a");
         let input_b = ctx.get_input(node, graph, "b");
 
-        if let Ok(Value::Int(a)) = input_a && let Ok(Value::Int(b)) = input_b {
+        if let Ok(Value::Int(a)) = input_a
+            && let Ok(Value::Int(b)) = input_b
+        {
             return Ok(Value::Int(a.pow(b as u32)));
-        } else if let Ok(Value::Float(a)) = input_a && let Ok(Value::Float(b)) = input_b {
-            return Ok(Value::Float(a.powf(b)))
-        } else if let Ok(Value::Float(a)) = input_a && let Ok(Value::Int(b)) = input_b {
-            return Ok(Value::Float(a.powi(b)))
-        } else if let Ok(Value::Int(a)) = input_a && let Ok(Value::Float(b)) = input_b {
-            return Ok(Value::Float(b.powf(b)))
+        } else if let Ok(Value::Float(a)) = input_a
+            && let Ok(Value::Float(b)) = input_b
+        {
+            return Ok(Value::Float(a.powf(b)));
+        } else if let Ok(Value::Float(a)) = input_a
+            && let Ok(Value::Int(b)) = input_b
+        {
+            return Ok(Value::Float(a.powi(b)));
+        } else if let Ok(Value::Int(a)) = input_a
+            && let Ok(Value::Float(b)) = input_b
+        {
+            return Ok(Value::Float(b.powf(b)));
         }
         Err(ScriptError::UnsupportedInput)
     }
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.power"), false, true,
+            String::from("core.math.power"),
+            false,
+            true,
             vec![
-                Port { name: String::from("a"), kind: PortKind::Data },
-                Port { name: String::from("b"), kind: PortKind::Data },
+                Port {
+                    name: String::from("a"),
+                    kind: PortKind::Data,
+                },
+                Port {
+                    name: String::from("b"),
+                    kind: PortKind::Data,
+                },
             ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }
@@ -376,7 +528,10 @@ impl NodeBehavior for AbsNode {
     }
 
     fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
-        self.a = defaults[&String::from("a")].as_ref().unwrap_or(&Value::Int(0)).to_owned();
+        self.a = defaults[&String::from("a")]
+            .as_ref()
+            .unwrap_or(&Value::Int(0))
+            .to_owned();
     }
 
     fn execute(
@@ -408,13 +563,17 @@ impl NodeBehavior for AbsNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.absolute"), false, true,
-            vec![
-                Port { name: String::from("a"), kind: PortKind::Data }
-            ],
-            vec![
-                Port { name: String::from("result"), kind: PortKind::Data }
-            ],
+            String::from("core.math.absolute"),
+            false,
+            true,
+            vec![Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+            }],
+            vec![Port {
+                name: String::from("result"),
+                kind: PortKind::Data,
+            }],
         )
     }
 }

@@ -1,3 +1,4 @@
+use crate::traits::NodeBehavior;
 use petgraph::stable_graph::{NodeIndex, StableDiGraph};
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
@@ -32,52 +33,7 @@ pub enum PortKind {
 pub struct Port {
     pub name: String,
     pub kind: PortKind,
-    // pub constant: Option<Value>,
 }
-
-#[derive(Serialize, Clone)]
-pub struct NodeSchema {
-    node_id: String,
-    is_executable: bool,
-    is_evaluable: bool,
-    outputs: Vec<Port>,
-    inputs: Vec<Port>
-}
-
-impl NodeSchema {
-    pub fn new(node_id: String, is_executable: bool, is_evaluable: bool, inputs: Vec<Port>, outputs: Vec<Port>) -> Self {
-        Self { node_id, is_executable, is_evaluable, inputs, outputs }
-    }
-
-    pub fn get_id(&self) -> String {
-        self.node_id.clone()
-    }
-}
-
-pub trait NodeBehavior {
-    fn new() -> Box<dyn NodeBehavior>
-    where
-        Self: Sized;
-
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>);
-
-    fn execute(
-        &self,
-        ctx: &mut ExecutionContext,
-        graph: &StableDiGraph<Node, EdgeType>,
-        node: NodeIndex,
-    ) -> Result<(), ScriptError>;
-
-    fn evaluate(
-        &self,
-        ctx: &mut ExecutionContext,
-        graph: &StableDiGraph<Node, EdgeType>,
-        node: NodeIndex,
-        output_port: &str,
-    ) -> Result<Value, ScriptError>;
-    fn get_schema(&self) -> NodeSchema;
-}
-
 
 #[derive(Debug, Clone)]
 pub enum EdgeType {
@@ -92,9 +48,7 @@ pub struct Node {
 
 impl Debug for Node {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let _ = f.debug_struct("Node")
-            .field("name", &self.name)
-            .finish();
+        let _ = f.debug_struct("Node").field("name", &self.name).finish();
         Ok(())
     }
 }
@@ -132,12 +86,10 @@ impl ExecutionContext {
         if let Some(v) = self.cache.get(&(node, output_port.to_string())) {
             return Ok(v.clone());
         }
-
         let behavior = &graph[node].behavior;
-
         let value = behavior.evaluate(self, graph, node, output_port)?;
-
-        self.cache.insert((node, output_port.to_string()), value.clone());
+        self.cache
+            .insert((node, output_port.to_string()), value.clone());
 
         Ok(value)
     }
@@ -156,16 +108,11 @@ impl VisualScript {
         }
     }
 
-    pub fn add_node(
-        &mut self,
-        name: &str,
-        behavior: Box<dyn NodeBehavior>,
-    ) -> NodeIndex {
+    pub fn add_node(&mut self, name: &str, behavior: Box<dyn NodeBehavior>) -> NodeIndex {
         let idx = self.graph.add_node(Node {
             name: name.to_string(),
             behavior,
         });
-
         if self.entry.is_none() {
             self.entry = Some(idx);
         }
@@ -173,21 +120,11 @@ impl VisualScript {
         idx
     }
 
-    pub fn connect_execution(
-        &mut self,
-        from: NodeIndex,
-        to: NodeIndex,
-    ) {
+    pub fn connect_execution(&mut self, from: NodeIndex, to: NodeIndex) {
         self.graph.add_edge(from, to, EdgeType::Execution);
     }
 
-    pub fn connect_data(
-        &mut self,
-        from: NodeIndex,
-        to: NodeIndex,
-        from_port: &str,
-        to_port: &str,
-    ) {
+    pub fn connect_data(&mut self, from: NodeIndex, to: NodeIndex, from_port: &str, to_port: &str) {
         self.graph.add_edge(
             from,
             to,
@@ -206,18 +143,18 @@ impl VisualScript {
 
         loop {
             let node = self.graph.node_weight(current);
-
             match node {
                 Some(node) => {
-                    if node.behavior.get_schema().is_executable {
+                    if node.behavior.get_schema().is_executable() {
                         node.behavior.execute(&mut ctx, &self.graph, current)?;
                     }
                 }
-                _ => panic!()
+                _ => panic!(),
             }
             ctx.cache.clear();
 
-            let next_exec = self.graph
+            let next_exec = self
+                .graph
                 .edges_directed(current, Direction::Outgoing)
                 .find(|e| matches!(e.weight(), EdgeType::Execution))
                 .map(|e| e.target());

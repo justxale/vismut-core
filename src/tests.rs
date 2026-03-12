@@ -1,21 +1,21 @@
-use crate::core::{NodeBehavior, ScriptError, Value, VisualScript};
+use crate::core::{ScriptError, Value, VisualScript};
 use crate::nodes::{AddNode, PrintNode, StartNode, SubtractNode};
 use crate::register::{ExecutionEnvironment, RegisterError};
-use std::collections::HashMap;
+use crate::traits::NodeBehavior;
 use serde::Serialize;
-
+use std::collections::HashMap;
 #[test]
 fn main() -> Result<(), ScriptError> {
     let mut script = VisualScript::new();
     let mut add_node1 = AddNode::new();
     add_node1.set_values(HashMap::from([
         (String::from("a"), Some(Value::Int(10))),
-        (String::from("b"), Some(Value::Int(30)))
+        (String::from("b"), Some(Value::Int(30))),
     ]));
     let mut add_node2 = AddNode::new();
     add_node2.set_values(HashMap::from([
         (String::from("a"), None),
-        (String::from("b"), Some(Value::Int(30)))
+        (String::from("b"), Some(Value::Int(30))),
     ]));
 
     let start = script.add_node("Start", Box::new(StartNode));
