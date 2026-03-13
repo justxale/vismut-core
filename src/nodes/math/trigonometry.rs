@@ -134,7 +134,7 @@ impl NodeBehavior for TanNode {
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
-        output_port: &str,
+        _output_port: &str,
     ) -> Result<Value, ScriptError> {
         let input_a = ctx.get_input(node, graph, "a");
         match input_a.as_ref().unwrap_or(&self.a) {
