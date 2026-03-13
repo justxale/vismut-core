@@ -23,19 +23,9 @@ impl NodeBehavior for StartNode {
         Ok(())
     }
 
-    fn evaluate(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-        _: &str,
-    ) -> Result<Value, ScriptError> {
-        Err(ScriptError::NotEvaluable)
-    }
-
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.io.start"),
+            self.get_id().to_string(),
             true,
             false,
             vec![],
@@ -45,6 +35,10 @@ impl NodeBehavior for StartNode {
                 types: vec![]
             }],
         )
+    }
+    
+    fn get_id(&self) -> &str {
+        "core.io.start"
     }
 }
 
@@ -63,27 +57,20 @@ impl NodeBehavior for PrintNode {
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
     ) -> Result<(), ScriptError> {
-        match ctx.get_input(node, graph, "value")? {
-            val => {
+        match ctx.get_input(node, graph, "value") {
+            Ok(val) => {
                 println!("Print: {:?}", val);
+            }
+            Err(_) => {
+                println!("Print failed");
             }
         }
         Ok(())
     }
 
-    fn evaluate(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-        _: &str,
-    ) -> Result<Value, ScriptError> {
-        Err(ScriptError::NotEvaluable)
-    }
-
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.io.print"),
+            self.get_id().to_string(),
             true,
             false,
             vec![
@@ -100,5 +87,9 @@ impl NodeBehavior for PrintNode {
             ],
             vec![],
         )
+    }
+    
+    fn get_id(&self) -> &str {
+        "core.io.print"
     }
 }

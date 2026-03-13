@@ -12,17 +12,23 @@ pub trait NodeBehavior {
 
     fn execute(
         &self,
-        ctx: &mut ExecutionContext,
-        graph: &StableDiGraph<Node, EdgeType>,
-        node: NodeIndex,
-    ) -> Result<(), ScriptError>;
+        _ctx: &mut ExecutionContext,
+        _graph: &StableDiGraph<Node, EdgeType>,
+        _node: NodeIndex,
+    ) -> Result<(), ScriptError> {
+        Err(ScriptError::NotExecutable)
+    }
 
     fn evaluate(
         &self,
-        ctx: &mut ExecutionContext,
-        graph: &StableDiGraph<Node, EdgeType>,
-        node: NodeIndex,
-        output_port: &str,
-    ) -> Result<Value, ScriptError>;
+        _ctx: &mut ExecutionContext,
+        _graph: &StableDiGraph<Node, EdgeType>,
+        _node: NodeIndex,
+        _output_port: &str,
+    ) -> Result<Value, ScriptError> {
+        Err(ScriptError::NotEvaluable)
+    }
     fn get_schema(&self) -> NodeSchema;
+    
+    fn get_id(&self) -> &str;
 }

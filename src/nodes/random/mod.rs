@@ -48,7 +48,7 @@ impl NodeBehavior for RandomIntegerNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.random.integer"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -66,5 +66,9 @@ impl NodeBehavior for RandomIntegerNode {
                 types: vec![ValueType::Int]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.random.integer"
     }
 }

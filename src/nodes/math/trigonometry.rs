@@ -21,15 +21,6 @@ impl NodeBehavior for SinNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _ctx: &mut ExecutionContext,
-        _graph: &StableDiGraph<Node, EdgeType>,
-        _node: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -47,7 +38,7 @@ impl NodeBehavior for SinNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.sin"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -61,6 +52,10 @@ impl NodeBehavior for SinNode {
                 types: vec![ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.sin"
     }
 }
 
@@ -78,14 +73,6 @@ impl NodeBehavior for CosNode {
             .as_ref()
             .unwrap_or(&Value::Int(0))
             .to_owned();
-    }
-    fn execute(
-        &self,
-        _ctx: &mut ExecutionContext,
-        _graph: &StableDiGraph<Node, EdgeType>,
-        _node: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
     }
 
     fn evaluate(
@@ -105,7 +92,7 @@ impl NodeBehavior for CosNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.cos"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -119,6 +106,10 @@ impl NodeBehavior for CosNode {
                 types: vec![ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.cos"
     }
 }
 
@@ -138,15 +129,6 @@ impl NodeBehavior for TanNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _ctx: &mut ExecutionContext,
-        _graph: &StableDiGraph<Node, EdgeType>,
-        _node: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -164,7 +146,7 @@ impl NodeBehavior for TanNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.tan"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -178,6 +160,10 @@ impl NodeBehavior for TanNode {
                 types: vec![ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.tan"
     }
 }
 
@@ -197,15 +183,6 @@ impl NodeBehavior for CotNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _ctx: &mut ExecutionContext,
-        _graph: &StableDiGraph<Node, EdgeType>,
-        _node: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -223,7 +200,7 @@ impl NodeBehavior for CotNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.cot"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -237,5 +214,9 @@ impl NodeBehavior for CotNode {
                 types: vec![ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.cot"
     }
 }

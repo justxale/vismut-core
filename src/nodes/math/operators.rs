@@ -29,15 +29,6 @@ impl NodeBehavior for AddNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -59,7 +50,7 @@ impl NodeBehavior for AddNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.add"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -80,6 +71,10 @@ impl NodeBehavior for AddNode {
                 types: vec![ValueType::Int, ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.add"
     }
 }
 
@@ -107,15 +102,6 @@ impl NodeBehavior for SubtractNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -137,7 +123,7 @@ impl NodeBehavior for SubtractNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.subtract"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -158,6 +144,10 @@ impl NodeBehavior for SubtractNode {
                 types: vec![ValueType::Int, ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.subtract"
     }
 }
 
@@ -185,15 +175,6 @@ impl NodeBehavior for MultiplyNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -215,7 +196,7 @@ impl NodeBehavior for MultiplyNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.multiply"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -237,20 +218,15 @@ impl NodeBehavior for MultiplyNode {
             }],
         )
     }
+
+    fn get_id(&self) -> &str {
+        "core.math.multiply"
+    }
 }
 
 pub struct DivideNode {
     a: Value,
     b: Value,
-}
-
-impl DivideNode {
-    fn new(a: Option<Value>, b: Option<Value>) -> Self {
-        Self {
-            a: a.unwrap_or(Value::Int(0)),
-            b: b.unwrap_or(Value::Int(1)),
-        }
-    }
 }
 
 impl NodeBehavior for DivideNode {
@@ -270,15 +246,6 @@ impl NodeBehavior for DivideNode {
             .as_ref()
             .unwrap_or(&Value::Int(1))
             .to_owned();
-    }
-
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
     }
 
     fn evaluate(
@@ -302,7 +269,7 @@ impl NodeBehavior for DivideNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.divide"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -323,6 +290,10 @@ impl NodeBehavior for DivideNode {
                 types: vec![ValueType::Int, ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.divide"
     }
 }
 
@@ -350,15 +321,6 @@ impl NodeBehavior for ModuloNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -377,7 +339,7 @@ impl NodeBehavior for ModuloNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.modulo"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -398,6 +360,10 @@ impl NodeBehavior for ModuloNode {
                 types: vec![ValueType::Int]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.modulo"
     }
 }
 
@@ -425,15 +391,6 @@ impl NodeBehavior for PowNode {
             .to_owned();
     }
 
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
-    }
-
     fn evaluate(
         &self,
         ctx: &mut ExecutionContext,
@@ -455,7 +412,7 @@ impl NodeBehavior for PowNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.power"),
+            self.get_id().to_string(),
             false,
             true,
             vec![
@@ -477,6 +434,10 @@ impl NodeBehavior for PowNode {
             }],
         )
     }
+
+    fn get_id(&self) -> &str {
+        "core.math.pow"
+    }
 }
 
 pub struct AbsNode {
@@ -493,15 +454,6 @@ impl NodeBehavior for AbsNode {
             .as_ref()
             .unwrap_or(&Value::Int(0))
             .to_owned();
-    }
-
-    fn execute(
-        &self,
-        _: &mut ExecutionContext,
-        _: &StableDiGraph<Node, EdgeType>,
-        _: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        Err(ScriptError::NotExecutable)
     }
 
     fn evaluate(
@@ -522,7 +474,7 @@ impl NodeBehavior for AbsNode {
 
     fn get_schema(&self) -> NodeSchema {
         NodeSchema::new(
-            String::from("core.math.absolute"),
+            self.get_id().to_string(),
             false,
             true,
             vec![Port {
@@ -536,5 +488,9 @@ impl NodeBehavior for AbsNode {
                 types: vec![ValueType::Int, ValueType::Float]
             }],
         )
+    }
+
+    fn get_id(&self) -> &str {
+        "core.math.abs"
     }
 }
