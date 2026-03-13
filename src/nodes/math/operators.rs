@@ -1,4 +1,4 @@
-use crate::core::ExecutionContext;
+use crate::core::{ExecutionContext, ValueType};
 use crate::core::{EdgeType, Node, Port, PortKind, ScriptError, Value};
 use crate::register::NodeSchema;
 use crate::traits::NodeBehavior;
@@ -66,15 +66,18 @@ impl NodeBehavior for AddNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }
@@ -141,15 +144,18 @@ impl NodeBehavior for SubtractNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }
@@ -216,15 +222,18 @@ impl NodeBehavior for MultiplyNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }
@@ -300,15 +309,18 @@ impl NodeBehavior for DivideNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }
@@ -372,15 +384,18 @@ impl NodeBehavior for ModuloNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int]
             }],
         )
     }
@@ -447,15 +462,18 @@ impl NodeBehavior for PowNode {
                 Port {
                     name: String::from("a"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
                 Port {
                     name: String::from("b"),
                     kind: PortKind::Data,
+                    types: vec![ValueType::Int, ValueType::Float]
                 },
             ],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }
@@ -510,10 +528,12 @@ impl NodeBehavior for AbsNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
         )
     }

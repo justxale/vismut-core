@@ -1,3 +1,4 @@
+use crate::core::ValueType;
 use crate::core::{EdgeType, ExecutionContext, Node, Port, PortKind, ScriptError, Value};
 use crate::register::NodeSchema;
 use crate::traits::NodeBehavior;
@@ -52,10 +53,12 @@ impl NodeBehavior for SinNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Float]
             }],
         )
     }
@@ -108,10 +111,12 @@ impl NodeBehavior for CosNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Float]
             }],
         )
     }
@@ -165,10 +170,12 @@ impl NodeBehavior for TanNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Float]
             }],
         )
     }
@@ -222,10 +229,12 @@ impl NodeBehavior for CotNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int, ValueType::Float]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Float]
             }],
         )
     }

@@ -1,3 +1,4 @@
+use crate::core::ValueType;
 use std::collections::HashMap;
 use rand::{RngExt};
 use petgraph::graph::NodeIndex;
@@ -53,10 +54,16 @@ impl NodeBehavior for RandomIntegerNode {
             vec![Port {
                 name: String::from("a"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int]
+            }, Port {
+                name: String::from("a"),
+                kind: PortKind::Data,
+                types: vec![ValueType::Int]
             }],
             vec![Port {
                 name: String::from("result"),
                 kind: PortKind::Data,
+                types: vec![ValueType::Int]
             }],
         )
     }

@@ -20,6 +20,18 @@ pub enum Value {
     Float(f32),
     Bool(bool),
     String(String),
+    Object(HashMap<String, Value>),
+    None,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub enum ValueType {
+    Int,
+    Float,
+    Bool,
+    String,
+    Object,
+    Any,
     None,
 }
 
@@ -33,6 +45,7 @@ pub enum PortKind {
 pub struct Port {
     pub name: String,
     pub kind: PortKind,
+    pub types: Vec<ValueType>
 }
 
 #[derive(Debug, Clone)]
