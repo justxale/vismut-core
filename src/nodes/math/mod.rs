@@ -5,7 +5,7 @@ use crate::traits::NodeBehavior;
 pub use operators::{AddNode, DivideNode, ModuloNode, MultiplyNode, PowNode, SubtractNode, AbsNode};
 pub use trigonometry::{CosNode, CotNode, SinNode, TanNode};
 
-pub static MATH_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 11] = [
+pub(crate) static MATH_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 11] = [
     AddNode::new,
     DivideNode::new,
     ModuloNode::new,

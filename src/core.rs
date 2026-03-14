@@ -2,6 +2,7 @@ use crate::traits::NodeBehavior;
 use petgraph::stable_graph::{NodeIndex, StableDiGraph};
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
+#[cfg(feature = "serde")]
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
@@ -24,7 +25,8 @@ pub enum Value {
     None,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Debug, Clone)]
 pub enum ValueType {
     Int,
     Float,
@@ -35,13 +37,15 @@ pub enum ValueType {
     None,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Debug, Clone)]
 pub enum PortKind {
     Execution,
     Data,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Debug, Clone)]
 pub struct Port {
     pub name: String,
     pub kind: PortKind,
@@ -61,8 +65,7 @@ pub struct Node {
 
 impl Debug for Node {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let _ = f.debug_struct("Node").field("name", &self.name).finish();
-        Ok(())
+        f.debug_struct("Node").field("name", &self.name).finish()
     }
 }
 

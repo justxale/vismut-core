@@ -1,6 +1,9 @@
-mod io;
 mod math;
-pub mod random;
+mod io;
+mod random;
 
-pub use io::*;
-pub use math::*;
+pub use {
+    math::*,
+    io::*,
+    random::*,
+};

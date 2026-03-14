@@ -1,24 +1,27 @@
 use crate::core::Port;
 use crate::traits::NodeBehavior;
+#[cfg(feature = "nodes")]
+use crate::nodes::MATH_NODES_FACTORIES;
+#[cfg(feature = "serde")]
 use serde::Serialize;
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub enum RegisterError {
+pub enum RegistryError {
     AlreadyRegistered,
     Failed,
 }
 
-#[derive(Serialize)]
-pub struct RegisterSchema {
+#[cfg_attr(feature = "serde", derive(Serialize))]
+pub struct RegistrySchema {
     nodes: Vec<NodeSchema>,
     total: u32,
 }
 
-impl RegisterSchema {
+impl RegistrySchema {
     fn new(nodes: Iter<String, (NodeSchema, fn() -> Box<dyn NodeBehavior>)>) -> Self {
-        let mut schema = RegisterSchema {
+        let mut schema = RegistrySchema {
             nodes: vec![],
             total: 0,
         };
@@ -32,7 +35,7 @@ impl RegisterSchema {
 
 pub struct ExecutionEnvironment {
     nodes: HashMap<String, (NodeSchema, fn() -> Box<dyn NodeBehavior>)>,
-    cached_schema: Option<RegisterSchema>,
+    cached_schema: Option<RegistrySchema>,
 }
 
 impl ExecutionEnvironment {
@@ -43,13 +46,24 @@ impl ExecutionEnvironment {
         }
     }
 
+    #[cfg(feature = "nodes")]
+    pub fn default() -> Self {
+        let mut registry = Self {
+            nodes: HashMap::new(),
+            cached_schema: None,
+        };
+        registry.include(&MATH_NODES_FACTORIES).unwrap();
+        registry
+
+    }
+
     pub fn register(
         &mut self,
         node_factory: fn() -> Box<dyn NodeBehavior>,
-    ) -> Result<&mut Self, RegisterError> {
+    ) -> Result<&mut Self, RegistryError> {
         let schema = node_factory().get_schema();
         if self.nodes.contains_key(&schema.get_id()) {
-            return Err(RegisterError::AlreadyRegistered);
+            return Err(RegistryError::AlreadyRegistered);
         }
         self.nodes.insert(schema.get_id(), (schema, node_factory));
         Ok(self)
@@ -58,27 +72,30 @@ impl ExecutionEnvironment {
     pub fn include(
         &mut self,
         node_factories: &[fn() -> Box<dyn NodeBehavior>],
-    ) -> Result<&mut Self, RegisterError> {
+    ) -> Result<&mut Self, RegistryError> {
         for factory in node_factories {
             if self.register(*factory).is_err() {
-                return Err(RegisterError::Failed);
+                return Err(RegistryError::Failed);
             }
         }
         Ok(self)
     }
 
-    pub fn get_schema(&mut self) -> &RegisterSchema {
+    pub fn get_schema(&mut self) -> &RegistrySchema {
         match self.cached_schema {
             Some(ref schema) => schema,
             None => {
-                self.cached_schema = Some(RegisterSchema::new(self.nodes.iter()));
+                self.cached_schema = Some(RegistrySchema::new(self.nodes.iter()));
                 self.cached_schema.as_ref().unwrap()
             }
         }
     }
+
+    pub fn parse() {}
 }
 
-#[derive(Serialize, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone)]
 pub struct NodeSchema {
     node_id: String,
     is_executable: bool,
@@ -110,5 +127,17 @@ impl NodeSchema {
 
     pub fn is_executable(&self) -> bool {
         self.is_executable
+    }
+
+    pub fn is_evaluable(&self) -> bool {
+        self.is_evaluable
+    }
+
+    pub fn get_outputs(&self) -> &Vec<Port> {
+        &self.outputs
+    }
+
+    pub fn get_inputs(&self) -> &Vec<Port> {
+        &self.inputs
     }
 }

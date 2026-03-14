@@ -1,5 +1,5 @@
 use crate::core::{EdgeType, ExecutionContext, Node, ScriptError, Value};
-use crate::register::NodeSchema;
+use crate::registry::NodeSchema;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use std::collections::HashMap;

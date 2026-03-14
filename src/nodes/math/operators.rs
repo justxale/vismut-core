@@ -1,6 +1,6 @@
 use crate::core::{ExecutionContext, ValueType};
 use crate::core::{EdgeType, Node, Port, PortKind, ScriptError, Value};
-use crate::register::NodeSchema;
+use crate::registry::NodeSchema;
 use crate::traits::NodeBehavior;
 use petgraph::prelude::StableDiGraph;
 use petgraph::stable_graph::NodeIndex;
