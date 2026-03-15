@@ -284,7 +284,6 @@ dependencies = [
  "petgraph",
  "rand",
  "serde",
- "serde_json",
 ]
 
 [[package]]
