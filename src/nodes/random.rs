@@ -1,3 +1,6 @@
+use crate::NodeBehavior;
+use crate::nodes::random::random::RandomIntegerNode;
+
 #[cfg(feature = "nodes")]
 pub mod random {
     use crate::core::ValueType;
@@ -19,7 +22,7 @@ pub mod random {
             Box::new(Self { a: Value::Int(0), b: Value::Int(1) } )
         }
 
-        fn set_values(&mut self, _: HashMap<String, Option<Value>>) {}
+        fn set_values(&mut self, _: &HashMap<String, Option<Value>>) {}
 
         fn execute(
             &self,
@@ -73,3 +76,7 @@ pub mod random {
         }
     }
 }
+
+pub(crate) static RANDOM_NODE_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 1] = [
+    RandomIntegerNode::new
+];

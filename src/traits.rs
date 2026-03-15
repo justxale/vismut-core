@@ -8,7 +8,7 @@ pub trait NodeBehavior {
     where
         Self: Sized;
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>);
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>);
 
     fn execute(
         &self,

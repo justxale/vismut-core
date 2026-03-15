@@ -124,14 +124,17 @@ impl VisualScript {
         }
     }
 
-    pub fn add_node(&mut self, name: &str, behavior: Box<dyn NodeBehavior>) -> NodeIndex {
+    pub fn set_entry(&mut self, name: &String, behavior: Box<dyn NodeBehavior>) -> NodeIndex {
+        let idx = self.add_node(name, behavior);
+        self.entry = Some(idx);
+        idx
+    }
+
+    pub fn add_node(&mut self, name: &String, behavior: Box<dyn NodeBehavior>) -> NodeIndex {
         let idx = self.graph.add_node(Node {
             name: name.to_string(),
             behavior,
         });
-        if self.entry.is_none() {
-            self.entry = Some(idx);
-        }
 
         idx
     }

@@ -12,7 +12,7 @@ impl NodeBehavior for StartNode {
         Box::new(Self)
     }
 
-    fn set_values(&mut self, _: HashMap<String, Option<Value>>) {}
+    fn set_values(&mut self, _: &HashMap<String, Option<Value>>) {}
 
     fn execute(
         &self,
@@ -49,7 +49,7 @@ impl NodeBehavior for PrintNode {
         Box::new(Self)
     }
 
-    fn set_values(&mut self, _: HashMap<String, Option<Value>>) {}
+    fn set_values(&mut self, _: &HashMap<String, Option<Value>>) {}
 
     fn execute(
         &self,
@@ -93,3 +93,7 @@ impl NodeBehavior for PrintNode {
         "core.io.print"
     }
 }
+
+pub(crate) static IO_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 2] = [
+    PrintNode::new, StartNode::new
+];

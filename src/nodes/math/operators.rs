@@ -18,7 +18,7 @@ impl NodeBehavior for AddNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -91,7 +91,7 @@ impl NodeBehavior for SubtractNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -164,7 +164,7 @@ impl NodeBehavior for MultiplyNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -237,7 +237,7 @@ impl NodeBehavior for DivideNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -310,7 +310,7 @@ impl NodeBehavior for ModuloNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -380,7 +380,7 @@ impl NodeBehavior for PowNode {
         })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -449,7 +449,7 @@ impl NodeBehavior for AbsNode {
         Box::new(Self { a: Value::Int(0) })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))

@@ -14,7 +14,7 @@ impl NodeBehavior for SinNode {
         Box::new(Self { a: Value::Int(0) })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -68,7 +68,7 @@ impl NodeBehavior for CosNode {
         Box::new(Self { a: Value::Int(0) })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -122,7 +122,7 @@ impl NodeBehavior for TanNode {
         Box::new(Self { a: Value::Int(0) })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
@@ -176,7 +176,7 @@ impl NodeBehavior for CotNode {
         Box::new(Self { a: Value::Int(0) })
     }
 
-    fn set_values(&mut self, defaults: HashMap<String, Option<Value>>) {
+    fn set_values(&mut self, defaults: &HashMap<String, Option<Value>>) {
         self.a = defaults[&String::from("a")]
             .as_ref()
             .unwrap_or(&Value::Int(0))
