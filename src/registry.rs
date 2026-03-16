@@ -208,17 +208,20 @@ impl NodeSchema {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct ScriptNode {
     pub node_id: String,
     pub id: String,
     pub defaults: Option<HashMap<String, Option<Value>>>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct ScriptExecutionPath {
     pub from: String,
     pub to: String,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct ScriptDataPath {
     pub from: String,
     pub from_port: String,
@@ -226,6 +229,7 @@ pub struct ScriptDataPath {
     pub to_port: String,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct ScriptSchema {
     pub entry: ScriptNode,
     pub nodes: Vec<ScriptNode>,

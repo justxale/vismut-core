@@ -16,6 +16,7 @@ pub enum ScriptError {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
 pub enum Value {
     Int(i32),
     Float(f32),
@@ -25,7 +26,7 @@ pub enum Value {
     None,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
 #[derive(Debug, Clone)]
 pub enum ValueType {
     Int,
@@ -37,7 +38,7 @@ pub enum ValueType {
     None,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
 #[derive(Debug, Clone)]
 pub enum PortKind {
     Execution,
