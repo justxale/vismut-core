@@ -33,6 +33,7 @@ impl RegistrySchema {
             schema.nodes.push(node.clone());
             schema.total += 1;
         }
+        log::debug!("Prepared RegistrySchema with {} nodes", schema.total);
         schema
     }
 }
@@ -44,6 +45,7 @@ pub struct ExecutionEnvironment {
 
 impl ExecutionEnvironment {
     pub fn new() -> Self {
+        log::debug!("Using new executor");
         Self {
             nodes: HashMap::new(),
             cached_schema: None,
@@ -52,6 +54,7 @@ impl ExecutionEnvironment {
 
     #[cfg(feature = "nodes")]
     pub fn default() -> Self {
+        log::debug!("Using default executor");
         let mut registry = Self {
             nodes: HashMap::new(),
             cached_schema: None,
@@ -60,6 +63,7 @@ impl ExecutionEnvironment {
             .include(&MATH_NODES_FACTORIES).unwrap()
             .include(&IO_NODES_FACTORIES).unwrap()
             .include(&RANDOM_NODE_FACTORIES).unwrap();
+        log::info!("Default executor ready; loaded {} nodes", registry.nodes.len());
         registry
     }
 
@@ -71,6 +75,7 @@ impl ExecutionEnvironment {
         if self.nodes.contains_key(schema.get_id()) {
             return Err(RegistryError::AlreadyRegistered);
         }
+        log::debug!("Registered {}", schema.get_id());
         self.nodes
             .insert(schema.get_id().to_string(), (schema, node_factory));
         Ok(self)
@@ -85,6 +90,7 @@ impl ExecutionEnvironment {
                 return Err(RegistryError::Failed);
             }
         }
+        log::info!("Included {} nodes", node_factories.len());
         Ok(self)
     }
 
@@ -110,18 +116,20 @@ impl ExecutionEnvironment {
         );
 
         for node in &schema.nodes {
-            if let Some((_, behavior)) = self.get_node(&node.node_id) {
+            if let Some((schema, behavior)) = self.get_node(&node.node_id) {
                 let mut new_node = behavior();
+                log::debug!("Created new node {}", schema.node_id);
                 match node.defaults {
                     Some(ref defaults) => {
                         new_node.set_values(defaults);
+                        log::debug!("Set defaults {:?} for node {}", defaults, schema.node_id);
                     }
-                    None => {}
+                    None => {log::debug!("No defaults found for node {}", schema.node_id);}
                 }
-
                 let idx = script.add_node(&node.id, new_node);
                 node_indexes.insert(node.id.clone(), idx);
             } else {
+                log::error!("Node {} not found", node.node_id);
                 return Err(RegistryError::NotFound(schema.entry.node_id.clone()));
             }
         }
@@ -129,6 +137,7 @@ impl ExecutionEnvironment {
             if let (Some(from), Some(to)) =
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
+                log::debug!("Execution connected; {} to {}", from.index(), to.index());
                 script.connect_execution(*from, *to);
             }
 
@@ -137,11 +146,11 @@ impl ExecutionEnvironment {
             if let (Some(from), Some(to)) =
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
+                log::debug!("Data connected; {}:{} to {}:{}", from.index(), to.index(), &path.from_port, &path.to_port);
                 script.connect_data(*from, *to, &path.from_port, &path.to_port);
             }
-
         }
-
+        log::info!("Succesfully parsed script");
         Ok(script)
     }
 
