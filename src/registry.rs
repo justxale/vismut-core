@@ -17,7 +17,7 @@ pub enum RegistryError {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RegistrySchema {
     nodes: Vec<NodeSchema>,
     total: u32,
@@ -209,6 +209,7 @@ impl NodeSchema {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone)]
 pub struct ScriptNode {
     pub node_id: String,
     pub id: String,
@@ -216,12 +217,14 @@ pub struct ScriptNode {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone)]
 pub struct ScriptExecutionPath {
     pub from: String,
     pub to: String,
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone)]
 pub struct ScriptDataPath {
     pub from: String,
     pub from_port: String,
@@ -230,6 +233,7 @@ pub struct ScriptDataPath {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone)]
 pub struct ScriptSchema {
     pub entry: ScriptNode,
     pub nodes: Vec<ScriptNode>,
