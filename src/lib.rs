@@ -1,9 +1,11 @@
+//#[cfg(feature = "nodes")]
+//pub mod nodes;
 mod core;
-#[cfg(feature = "nodes")]
-pub mod nodes;
-mod registry;
-mod traits;
+mod common;
+mod context;
+mod graph;
+mod schemas;
 
-pub use self::registry::*;
-pub use self::traits::{NodeBehavior};
-pub use self::core::{ScriptError, Value, VisualScript};
+pub use core::{CompiledNode, NodeBuilder};
+pub use common::{Value, RegistryError, ScriptError};
+
