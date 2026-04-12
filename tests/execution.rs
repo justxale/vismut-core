@@ -1,6 +1,7 @@
 use std::collections::HashMap;
-use vismut_core::{ExecutionEnvironment, ScriptDataPath, ScriptExecutionPath, ScriptNode, ScriptSchema, Value};
+use vismut_core::{ExecutionEnvironment, ScriptDataPath, ScriptExecutionPath, ScriptNode, ScriptSchema};
 use vismut_core::RegistryError;
+use vismut_core::values::Value;
 
 #[test]
 #[cfg(feature = "nodes")]

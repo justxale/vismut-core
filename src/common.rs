@@ -1,13 +1,9 @@
+use crate::core::NodeValues;
+use std::sync::Arc;
 use std::collections::HashMap;
-use crate::graph::EdgeType;
-use crate::graph::Node;
-use crate::context::ExecutionContext;
-use petgraph::prelude::StableDiGraph;
-use petgraph::graph::NodeIndex;
+use std::pin::Pin;
 use crate::CompiledNode;
-
-#[cfg(feature = "serde")]
-use serde::Serialize;
+use crate::values::Value;
 
 #[derive(Debug)]
 pub enum RegistryError {
@@ -24,17 +20,6 @@ pub enum ScriptError {
     NotExecutable,
 }
 
-#[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
-pub enum Value {
-    Int(i32),
-    Float(f32),
-    Bool(bool),
-    String(String),
-    Object(HashMap<String, Value>),
-    None,
-}
-
-pub type BoxedExecutableFn = Box<dyn Fn(&mut ExecutionContext, &StableDiGraph<Node, EdgeType>, NodeIndex) -> Result<(), ScriptError>>;
-pub type BoxedEvaluableFn = Box<dyn Fn(&mut ExecutionContext, &StableDiGraph<Node, EdgeType>, NodeIndex, &str) -> Result<Value, ScriptError>>;
-pub type BoxedNodeFn = Box<dyn FnMut() -> CompiledNode>;
+pub type BoxedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
+pub type BoxedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError>>;
+pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode>;

@@ -9,7 +9,7 @@ pub enum EdgeType {
 
 pub struct Node {
     pub name: String,
-    pub behavior: CompiledNode,
+    pub node: CompiledNode,
 }
 
 impl Debug for Node {

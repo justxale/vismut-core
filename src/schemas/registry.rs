@@ -13,12 +13,12 @@ pub struct RegistrySchema {
 }
 
 impl RegistrySchema {
-    pub fn new(nodes: Iter<String, (NodeSchema, BoxedNodeFn)>) -> Self {
+    pub fn new(nodes: Iter<String, NodeSchema>) -> Self {
         let mut schema = RegistrySchema {
             nodes: vec![],
             total: 0,
         };
-        for (_, (node, _)) in nodes.into_iter() {
+        for (_, node) in nodes.into_iter() {
             schema.nodes.push(node.clone());
             schema.total += 1;
         }

@@ -1,11 +1,11 @@
 mod operators;
-mod trigonometry;
+//mod trigonometry;
 
-use crate::traits::NodeBehavior;
-pub use operators::{AddNode, DivideNode, ModuloNode, MultiplyNode, PowNode, SubtractNode, AbsNode};
-pub use trigonometry::{CosNode, CotNode, SinNode, TanNode};
+//use crate::traits::NodeBehavior;
+//pub use operators::{AddNode, DivideNode, ModuloNode, MultiplyNode, PowNode, SubtractNode, AbsNode};
+//pub use trigonometry::{CosNode, CotNode, SinNode, TanNode};
 
-pub(crate) static MATH_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 11] = [
+/*pub(crate) static MATH_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 11] = [
     AddNode::new,
     DivideNode::new,
     ModuloNode::new,
@@ -17,4 +17,4 @@ pub(crate) static MATH_NODES_FACTORIES: [fn() -> Box<dyn NodeBehavior>; 11] = [
     CotNode::new,
     SinNode::new,
     TanNode::new,
-];
+];*/

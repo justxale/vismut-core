@@ -1,11 +1,28 @@
-use crate::core::{ExecutionContext, ValueType};
-use crate::core::{EdgeType, Node, Port, PortKind, ScriptError, Value};
-use crate::registry::NodeSchema;
-use crate::traits::NodeBehavior;
-use petgraph::prelude::StableDiGraph;
-use petgraph::stable_graph::NodeIndex;
-use std::collections::HashMap;
-pub struct AddNode {
+use crate::{ScriptError, Value};
+use crate::common::BoxedNodeFn;
+use crate::NodeBuilder;
+use crate::values::{ValueType};
+
+pub fn build_add_node() -> BoxedNodeFn {
+    NodeBuilder::new("core.math.add")
+        .with_input("a", &[ValueType::Int, ValueType::Float])
+        .with_input("b", &[ValueType::Int, ValueType::Float])
+        .with_output("res", &[ValueType::Int, ValueType::Float])
+        .with_evaluation(|values, _| {
+            let a = values.get("a");
+            let b = values.get("b");
+
+            match (a, b) {
+                (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a + b)),
+                (Value::Float(a), Value::Float(b)) => Ok(Value::Float(a + b)),
+                (Value::Int(a), Value::Float(b)) => Ok(Value::Float((a as f32) + b)),
+                (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a + (b as f32))),
+                _ => Err(ScriptError::UnsupportedInput)
+            }
+        })
+        .build()
+}
+/*pub struct AddNode {
     a: Value,
     b: Value,
 }
@@ -493,4 +510,4 @@ impl NodeBehavior for AbsNode {
     fn get_id(&self) -> &str {
         "core.math.abs"
     }
-}
+}*/

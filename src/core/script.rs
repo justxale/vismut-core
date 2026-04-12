@@ -29,7 +29,7 @@ impl VismutScript {
     pub fn add_node(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
         let idx = self.graph.add_node(Node {
             name: name.to_string(),
-            behavior,
+            node: behavior,
         });
 
         idx
@@ -39,13 +39,13 @@ impl VismutScript {
         self.graph.add_edge(from, to, EdgeType::Execution);
     }
 
-    pub fn connect_data(&mut self, from: NodeIndex, to: NodeIndex, from_port: &str, to_port: &str) {
+    pub fn connect_data(&mut self, from: NodeIndex, to: NodeIndex, from_port: String, to_port: String) {
         self.graph.add_edge(
             from,
             to,
             EdgeType::Data {
-                from_port: from_port.to_string(),
-                to_port: to_port.to_string(),
+                from_port: from_port,
+                to_port: to_port,
             },
         );
     }
@@ -57,15 +57,14 @@ impl VismutScript {
         };
 
         loop {
-            let node = self.graph.node_weight(current);
-            match node {
-                Some(node) => {
-                    if node.behavior.get_schema().is_executable() {
-                        node.behavior.execute(&mut ctx, &self.graph, current)?;
+            match self.graph.node_weight(current) {
+                Some(graph_node) => {
+                    if let Err(err) = graph_node.node.execute(&mut ctx, &self.graph, current) {
+                        return Err(err);
                     }
-                }
-                _ => panic!(),
-            }
+                },
+                _ => return Err(ScriptError::NotExecutable),
+            };
             ctx.cache.clear();
 
             let next_exec = self

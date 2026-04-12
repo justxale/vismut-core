@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::Value;
+use crate::values::Value;
 
 #[cfg(feature = "serde")]
 use serde::Serialize;

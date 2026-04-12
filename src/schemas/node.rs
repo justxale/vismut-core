@@ -1,5 +1,6 @@
 #[cfg(feature = "serde")]
 use serde::Serialize;
+use crate::values::ValueType;
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Clone, Debug)]
@@ -55,18 +56,6 @@ pub struct PortSchema {
     pub name: String,
     pub kind: PortType,
     pub types: Vec<ValueType>
-}
-
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
-#[derive(Debug, Clone)]
-pub enum ValueType {
-    Int,
-    Float,
-    Bool,
-    String,
-    Object,
-    Any,
-    None,
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
