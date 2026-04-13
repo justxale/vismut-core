@@ -6,6 +6,7 @@ use petgraph::stable_graph::StableDiGraph;
 use crate::values::{ValueType, ValueState};
 use crate::context::ExecutionContext;
 use crate::common::{BoxedEvaluableFn, BoxedExecutableFn, BoxedNodeFn, ScriptError};
+use crate::schemas::{NodeSchema, PortSchema};
 use crate::values::Value;
 
 pub struct NodeValues<'a> {
@@ -39,6 +40,7 @@ impl<'a> NodeValues<'a> {
 }
 
 
+#[derive(Clone)]
 pub struct CompiledPort {
     title: &'static str,
     types: Vec<ValueType>,
@@ -75,10 +77,14 @@ pub struct CompiledNode {
 }
 
 impl CompiledNode {
-    pub fn new(execute_fn: BoxedExecutableFn, evaluate_fn: BoxedEvaluableFn) -> Self {
+    pub fn new(
+        execute_fn: BoxedExecutableFn,
+        evaluate_fn: BoxedEvaluableFn,
+        inputs: HashMap<&'static str, CompiledPort>,
+        outputs: HashMap<&'static str, CompiledPort>
+    ) -> Self {
         Self {
-            evaluate_fn, execute_fn,
-            inputs: HashMap::new(), outputs: HashMap::new()
+            evaluate_fn, execute_fn, inputs, outputs
         }
     }
 
@@ -138,13 +144,14 @@ impl CompiledNode {
     }
 
     pub fn set_values(&mut self, values: &HashMap<String, Option<Value>>) {
+        unimplemented!();
         for (title, value) in values {
 
         }
     }
 }
 
-struct PortBuilder {
+pub(crate) struct PortBuilder {
     title: &'static str,
     accepted_types: Vec<ValueType>
 }
@@ -164,13 +171,21 @@ impl PortBuilder {
     pub fn build(self) -> CompiledPort {
         CompiledPort::new(self.title, self.accepted_types)
     }
+
+    pub fn title(&self) -> &'static str {
+        self.title
+    }
+
+    pub fn types(&self) -> &Vec<ValueType> {
+        &self.accepted_types
+    }
 }
 
 pub struct NodeBuilder {
     execute_fn: Option<BoxedExecutableFn>,
     evaluate_fn: Option<BoxedEvaluableFn>,
-    input_ports: Vec<CompiledPort>,
-    output_ports: Vec<CompiledPort>,
+    input_ports: Vec<PortBuilder>,
+    output_ports: Vec<PortBuilder>,
     node_id: &'static str,
 }
 
@@ -202,17 +217,36 @@ impl NodeBuilder {
         if accepted_types.is_empty() {
             panic!("There must be at least one ValueType specified")
         }
-        self.input_ports.push(PortBuilder::new(title).with_types(accepted_types).build());
+        self.input_ports.push(PortBuilder::new(title).with_types(accepted_types));
         self
     }
 
     pub fn with_output(mut self, title: &'static str, returned_types: &[ValueType]) -> Self {
-        self.input_ports.push(PortBuilder::new(title).with_types(returned_types).build());
+        self.input_ports.push(PortBuilder::new(title).with_types(returned_types));
         self
     }
 
-    pub fn build(self) -> BoxedNodeFn {
-        Box::new(move || {
+    fn schema(&self) -> NodeSchema {
+        let is_executable = self.execute_fn.is_some();
+        let is_evaluable = self.evaluate_fn.is_some();
+        let inputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
+        let outputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
+        NodeSchema::new(
+            self.node_id, is_executable, is_evaluable,
+            inputs, outputs
+        )
+    }
+
+    pub fn build(self) -> (NodeSchema, BoxedNodeFn) {
+        let schema = self.schema();
+        let inputs: Vec<(&'static str, CompiledPort)> = self.input_ports.into_iter().map(|port| {
+            (port.title, port.build())
+        }).collect();
+        let outputs: Vec<(&'static str, CompiledPort)> = self.output_ports.into_iter().map(|port| {
+            (port.title, port.build())
+        }).collect();
+  
+        (schema, Box::new(move || {
             CompiledNode::new(
                 self.execute_fn.clone().unwrap_or(
                     Arc::new(|_| Err(ScriptError::NotExecutable))
@@ -220,7 +254,9 @@ impl NodeBuilder {
                 self.evaluate_fn.clone().unwrap_or(
                     Arc::new(|_, _| Err(ScriptError::NotEvaluable))
                 ),
+                HashMap::from_iter(inputs.iter().cloned()),
+                HashMap::from_iter(outputs.iter().cloned()),
             )
-        })
+        }))
     }
 }

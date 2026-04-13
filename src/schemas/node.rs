@@ -1,11 +1,12 @@
 #[cfg(feature = "serde")]
 use serde::Serialize;
+use crate::core::wrapper::PortBuilder;
 use crate::values::ValueType;
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Clone, Debug)]
 pub struct NodeSchema {
-    node_id: String,
+    node_id: &'static str,
     is_executable: bool,
     is_evaluable: bool,
     outputs: Vec<PortSchema>,
@@ -14,7 +15,7 @@ pub struct NodeSchema {
 
 impl NodeSchema {
     pub fn new(
-        node_id: String,
+        node_id: &'static str,
         is_executable: bool,
         is_evaluable: bool,
         inputs: Vec<PortSchema>,
@@ -29,7 +30,7 @@ impl NodeSchema {
         }
     }
 
-    pub fn get_id(&self) -> &String {
+    pub fn get_id(&self) -> &str {
         &self.node_id
     }
 
@@ -53,9 +54,31 @@ impl NodeSchema {
 #[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Debug, Clone)]
 pub struct PortSchema {
-    pub name: String,
+    pub name: &'static str,
     pub kind: PortType,
     pub types: Vec<ValueType>
+}
+
+impl PortSchema {
+    pub fn execution() -> Self {
+        Self {
+            kind: PortType::Execution,
+            name: "exec", types: vec![]
+        }
+    }
+    
+    pub fn data(name: &'static str, types: &Vec<ValueType>) -> Self {
+        Self {
+            kind: PortType::Data,
+            name, types: types.clone()
+        }
+    }
+}
+
+impl From<&PortBuilder> for PortSchema {
+    fn from(value: &PortBuilder) -> Self {
+        Self::data(value.title(), value.types())
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]

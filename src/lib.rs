@@ -8,7 +8,7 @@ mod schemas;
 mod nodes;
 mod values;
 
-pub use core::{CompiledNode, NodeBuilder, CompiledPort};
+pub use core::{CompiledNode, NodeBuilder, CompiledPort, VismutExecutionEnvironment};
 pub use common::{RegistryError, ScriptError};
-pub use values::Value;
+pub use values::{Value, ValueType};
 
