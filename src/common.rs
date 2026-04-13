@@ -16,6 +16,7 @@ pub enum ScriptError {
     UnsupportedInput,
     NotEvaluable,
     NotExecutable,
+    RuntimeError(String)
 }
 
 pub type BoxedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
