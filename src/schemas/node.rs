@@ -60,10 +60,10 @@ pub struct PortSchema {
 }
 
 impl PortSchema {
-    pub fn execution() -> Self {
+    pub fn execution(name: &'static str) -> Self {
         Self {
             kind: PortType::Execution,
-            name: "exec", types: vec![]
+            name, types: vec![]
         }
     }
     
