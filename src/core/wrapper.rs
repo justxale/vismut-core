@@ -200,8 +200,11 @@ impl NodeBuilder {
         }
     }
 
-    pub fn with_execution(mut self, execute_fn: BoxedExecutableFn) -> Self {
-        self.execute_fn = Some(execute_fn);
+    pub fn with_execution<F>(mut self, execute_fn: F) -> Self
+    where
+        F: Fn(&NodeValues) -> Result<(), ScriptError> + 'static
+    {
+        self.execute_fn = Some(Arc::new(execute_fn));
         self
     }
 
