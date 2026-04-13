@@ -6,6 +6,7 @@ use crate::common::RegistryError;
 use std::collections::HashMap;
 use petgraph::graph::NodeIndex;
 use crate::common::BoxedNodeFn;
+use crate::nodes::build_math_nodes;
 
 pub struct VismutExecutionEnvironment {
     node_fns: HashMap<String, BoxedNodeFn>,
@@ -23,20 +24,21 @@ impl VismutExecutionEnvironment {
         }
     }
 
-    /*#[cfg(feature = "nodes")]
+    #[cfg(feature = "nodes")]
     pub fn default() -> Self {
         log::debug!("Using default executor");
         let mut registry = Self {
-            nodes: HashMap::new(),
+            node_fns: HashMap::new(),
+            node_schemas: HashMap::new(),
             cached_schema: None,
         };
         registry
-            .include(&MATH_NODES_FACTORIES).unwrap()
-            .include(&IO_NODES_FACTORIES).unwrap()
-            .include(&RANDOM_NODE_FACTORIES).unwrap();
-        log::info!("Default executor ready; loaded {} nodes", registry.nodes.len());
+            .include(build_math_nodes()).unwrap();
+            //.include(&IO_NODES_FACTORIES).unwrap()
+            //.include(&RANDOM_NODE_FACTORIES).unwrap();
+        log::info!("Default executor ready; loaded {} nodes", registry.node_fns.len());
         registry
-    }*/
+    }
 
     pub fn register(
         &mut self,
