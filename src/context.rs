@@ -18,11 +18,11 @@ impl ExecutionContext {
         graph: &StableDiGraph<Node, EdgeType>,
         port: &CompiledPort,
     ) -> ValueState {
+        log::debug!("Getting inputs for {}", node.index());
         for edge in graph.edges_directed(node, Direction::Incoming) {
             if let EdgeType::Data { from_port, to_port } = edge.weight() {
                 if *to_port == port.title() {
-                    let source = edge.source();
-                    return self.evaluate(source, &graph, from_port);
+                    return self.evaluate(edge.source(), &graph, from_port);
                 }
             }
         }

@@ -4,6 +4,6 @@ mod io;
 
 pub use {
     math::*,
-    //io::*,
+    io::*,
     //random::*,
 };

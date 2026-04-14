@@ -1,6 +1,5 @@
 use crate::common::BoxedNodeFn;
-use std::io::Write;
-use crate::{NodeBuilder, ScriptError, ValueType};
+use crate::{NodeBuilder, ValueType};
 use crate::schemas::NodeSchema;
 
 pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
@@ -8,18 +7,19 @@ pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("value", &[ValueType::Any])
         .with_execution(|values| {
             let v = values.get("value");
-            match std::io::stdout().write(format!("{:?}", v).as_bytes()) {
-                Ok(_) => Ok(()),
-                Err(err) => Err(ScriptError::RuntimeError(String::from(err.to_string()))),
-            }
+            log::debug!("core.io.stdout: {:?}", v);
+            Ok(())
         })
         .build()
 }
 
 pub fn build_start_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.io.start")
-        .with_input("value", &[ValueType::Any])
         .with_execution(|_| Ok(()))
         .with_no_exec_input()
         .build()
+}
+
+pub fn build_io_nodes() -> Vec<(NodeSchema, BoxedNodeFn)> {
+    vec![build_stdout_node(), build_start_node()]
 }

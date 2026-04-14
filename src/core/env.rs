@@ -6,7 +6,8 @@ use crate::common::RegistryError;
 use std::collections::HashMap;
 use petgraph::graph::NodeIndex;
 use crate::common::BoxedNodeFn;
-use crate::nodes::build_math_nodes;
+#[cfg(feature = "nodes")]
+use crate::nodes::{build_io_nodes, build_math_nodes};
 
 pub struct VismutExecutionEnvironment {
     node_fns: HashMap<String, BoxedNodeFn>,
@@ -16,7 +17,6 @@ pub struct VismutExecutionEnvironment {
 
 impl VismutExecutionEnvironment {
     pub fn new() -> Self {
-        log::debug!("Using new executor");
         Self {
             node_fns: HashMap::new(),
             node_schemas: HashMap::new(),
@@ -27,14 +27,9 @@ impl VismutExecutionEnvironment {
     #[cfg(feature = "nodes")]
     pub fn default() -> Self {
         log::debug!("Using default executor");
-        let mut registry = Self {
-            node_fns: HashMap::new(),
-            node_schemas: HashMap::new(),
-            cached_schema: None,
-        };
-        registry
-            .include(build_math_nodes()).unwrap();
-            //.include(&IO_NODES_FACTORIES).unwrap()
+        let mut registry = Self::new();
+        registry.include(build_math_nodes()).unwrap();
+        registry.include(build_io_nodes()).unwrap();
             //.include(&RANDOM_NODE_FACTORIES).unwrap();
         log::info!("Default executor ready; loaded {} nodes", registry.node_fns.len());
         registry
@@ -58,12 +53,13 @@ impl VismutExecutionEnvironment {
         &mut self,
         node_array: Vec<(NodeSchema, BoxedNodeFn)>,
     ) -> Result<&Self, RegistryError> {
+        let len = node_array.len();
         for (schema, boxed_fn) in node_array {
             if self.register(schema, boxed_fn).is_err() {
                 return Err(RegistryError::Failed);
             }
         }
-        log::info!("Included {} nodes", self.node_fns.len());
+        log::info!("Included {} nodes", len);
         Ok(self)
     }
 
@@ -73,7 +69,6 @@ impl VismutExecutionEnvironment {
 
     pub fn get_node_schema(&self, node_id: &String) -> Result<&NodeSchema, RegistryError> {
         self.node_schemas.get(node_id).ok_or(RegistryError::NotFound(String::from(node_id)))
-
     }
 
     pub fn parse(&self, schema: &ScriptSchema) -> Result<VismutScript, RegistryError> {
@@ -98,8 +93,8 @@ impl VismutExecutionEnvironment {
                     let mut new_node = node_fn();
                     let schema = self.get_node_schema(&node.node_id)?;
                     log::debug!("Created new node {}", schema.get_id());
-                    match node.defaults {
-                        Some(ref defaults) => {
+                    match &node.defaults {
+                        Some(defaults) => {
                             new_node.set_values(&defaults);
                             log::debug!("Set defaults {:?} for node {}", defaults, schema.get_id());
                         }
@@ -108,25 +103,29 @@ impl VismutExecutionEnvironment {
                     let idx = script.add_node(&node.id, new_node);
                     node_indexes.insert(node.id.clone(), idx);
                 },
-
-                Err(e) => log::error!("{:?}", e)
+                Err(e) => {
+                    log::error!("{:?}", e);
+                    return Err(e);
+                }
             }
         }
+
         for path in &schema.exec_paths {
             if let (Some(from), Some(to)) =
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
-                log::debug!("Execution connected; {} to {}", from.index(), to.index());
                 script.connect_execution(*from, *to);
-            }
+                log::debug!("Execution connected; {} to {}", from.index(), to.index());
 
+            }
         }
+
         for path in &schema.data_paths {
             if let (Some(from), Some(to)) =
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
-                log::debug!("Data connected; {}:{} to {}:{}", from.index(), to.index(), &path.from_port, &path.to_port);
                 script.connect_data(*from, *to, path.from_port.clone(), path.to_port.clone());
+                log::debug!("Data connected; {}:{} to {}:{}", from.index(), to.index(), &path.from_port, &path.to_port);
             }
         }
         log::info!("Succesfully parsed script");

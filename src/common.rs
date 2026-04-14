@@ -10,9 +10,19 @@ pub enum RegistryError {
     NotFound(String),
 }
 
+impl ToString for RegistryError {
+    fn to_string(&self) -> String {
+        match self {
+            RegistryError::AlreadyRegistered => String::from("AlreadyRegistered"),
+            RegistryError::Failed => String::from("Failed"),
+            RegistryError::NotFound(name) => format!("NotFound: {name}"),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum ScriptError {
-    MissingInput,
+    MissingInput(String),
     UnsupportedInput,
     NotEvaluable,
     NotExecutable,

@@ -64,8 +64,8 @@ impl CompiledPort {
         &self.types
     }
 
-    pub fn set_value(&mut self, value: Value) {
-        self.value = Some(value);
+    pub fn set_value(&mut self, value: Option<Value>) {
+        self.value = value;
     }
 }
 
@@ -104,12 +104,17 @@ impl CompiledNode {
                     values.insert(String::from(*port_title), value.clone());
                 },
                 ValueState::Default => {
-                    match port.types[0].default_value() {
-                        Err(error) => return Err(error),
-                        Ok(value) => {values.insert(String::from(*port_title), value);}
+                    if let Some(default_value) = &port.value {
+                        values.insert(String::from(*port_title), default_value.clone());
+                    } else {
+                        match port.types[0].default_value() {
+                            Ok(value) => values.insert(String::from(*port_title), value),
+                            Err(error) => return Err(error)
+
+                        }
                     }
                 },
-                ValueState::Unset => return Err(ScriptError::MissingInput)
+                ValueState::Unset => return Err(ScriptError::MissingInput(format!("{}", port_title)))
             }
         }
         (self.execute_fn)(&values)
@@ -132,22 +137,26 @@ impl CompiledNode {
                     values.insert(String::from(*port_title), value.clone());
                 },
                 ValueState::Default => {
-                    match port.types[0].default_value() {
-                        Err(error) => return Err(error),
-                        Ok(value) => {values.insert(String::from(*port_title), value);}
+                    if let Some(default_value) = &port.value {
+                        values.insert(String::from(*port_title), default_value.clone());
+                    } else {
+                        match port.types[0].default_value() {
+                            Ok(value) => values.insert(String::from(*port_title), value),
+                            Err(error) => return Err(error)
+                        }
                     }
                 },
-                ValueState::Unset => return Err(ScriptError::MissingInput)
+                ValueState::Unset => return Err(ScriptError::MissingInput(format!("{}", port_title)))
             }
         }
         (self.evaluate_fn)(&values, &output_port.clone())
     }
 
-    pub fn set_values(&mut self, values: &HashMap<String, Option<Value>>) {
-        unimplemented!();
+    pub fn set_values(&mut self, values: &HashMap<String, Option<Value>>) -> Option<()> {
         for (title, value) in values {
-
+            self.inputs.get_mut(title.as_str()).map(|port| port.set_value(value.clone()));
         }
+        None
     }
 }
 
