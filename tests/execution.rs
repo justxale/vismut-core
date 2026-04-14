@@ -1,12 +1,14 @@
+use vismut_core::schemas::ScriptExecutionPath;
+use vismut_core::schemas::ScriptDataPath;
+use vismut_core::schemas::ScriptNode;
+use vismut_core::schemas::ScriptSchema;
 use std::collections::HashMap;
-use vismut_core::{ExecutionEnvironment, ScriptDataPath, ScriptExecutionPath, ScriptNode, ScriptSchema};
-use vismut_core::RegistryError;
-use vismut_core::values::Value;
+use vismut_core::{VismutExecutionEnvironment, Value, ScriptError};
 
 #[test]
 #[cfg(feature = "nodes")]
-fn run_script() -> Result<(), RegistryError> {
-    let env = ExecutionEnvironment::default();
+fn run_script() -> Result<(), ScriptError> {
+    let env = VismutExecutionEnvironment::default();
 
     let script = ScriptSchema {
         entry: ScriptNode {
@@ -28,7 +30,7 @@ fn run_script() -> Result<(), RegistryError> {
                 )
             },
             ScriptNode {
-                node_id: String::from("core.io.print"),
+                node_id: String::from("core.io.stdout"),
                 id: String::from("3cec649b-27e6-4cf0-b857-4eb6ae2d0692"),
                 defaults: None
             }
@@ -49,7 +51,7 @@ fn run_script() -> Result<(), RegistryError> {
         ]
     };
     match env.parse(&script) {
-        Ok(mut ready) => {let _ = ready.run(); Ok(())},
-        Err(e) => Err(e)
+        Ok(mut ready) => {ready.run().unwrap(); Ok(())},
+        Err(e) => Err(ScriptError::RuntimeError(e.to_string()))
     }
 }

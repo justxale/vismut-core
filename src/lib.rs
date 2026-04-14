@@ -4,7 +4,7 @@ mod core;
 mod common;
 mod context;
 mod graph;
-mod schemas;
+pub mod schemas;
 mod values;
 
 pub use core::{CompiledNode, NodeBuilder, CompiledPort, VismutExecutionEnvironment};

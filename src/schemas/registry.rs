@@ -1,5 +1,4 @@
 use crate::schemas::NodeSchema;
-use crate::common::BoxedNodeFn;
 use std::collections::hash_map::Iter;
 
 #[cfg(feature = "serde")]
