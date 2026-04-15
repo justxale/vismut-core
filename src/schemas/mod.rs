@@ -1,7 +1,8 @@
 mod node;
-mod script;
 mod registry;
+mod script;
 
-pub use script::{ScriptNode, ScriptDataPath, ScriptExecutionPath, ScriptSchema};
-pub use registry::RegistrySchema;
 pub use node::{NodeSchema, PortSchema};
+pub use registry::RegistrySchema;
+pub use script::{ScriptDataPath, ScriptExecutionPath, ScriptNode, ScriptSchema};
+

@@ -1,7 +1,8 @@
 use crate::core::NodeValues;
-use std::sync::Arc;
-use crate::CompiledNode;
 use crate::values::Value;
+use crate::CompiledNode;
+use std::fmt::Display;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum RegistryError {
@@ -10,12 +11,12 @@ pub enum RegistryError {
     NotFound(String),
 }
 
-impl ToString for RegistryError {
-    fn to_string(&self) -> String {
+impl Display for RegistryError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            RegistryError::AlreadyRegistered => String::from("AlreadyRegistered"),
-            RegistryError::Failed => String::from("Failed"),
-            RegistryError::NotFound(name) => format!("NotFound: {name}"),
+            RegistryError::AlreadyRegistered => f.write_str("AlreadyRegistered"),
+            RegistryError::Failed => f.write_str("Failed"),
+            RegistryError::NotFound(s) => f.write_fmt(format_args!("NotFound: {}", s)),
         }
     }
 }
@@ -26,7 +27,7 @@ pub enum ScriptError {
     UnsupportedInput,
     NotEvaluable,
     NotExecutable,
-    RuntimeError(String)
+    RuntimeError(String),
 }
 
 pub type BoxedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;

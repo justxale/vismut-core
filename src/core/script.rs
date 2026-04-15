@@ -1,11 +1,11 @@
 use crate::context::ExecutionContext;
-use crate::graph::{Node, EdgeType};
-use petgraph::visit::EdgeRef;
-use std::collections::HashMap;
-use petgraph::Direction;
+use crate::graph::{EdgeType, Node};
+use crate::{CompiledNode, ScriptError};
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
-use crate::{ScriptError, CompiledNode};
+use petgraph::visit::EdgeRef;
+use petgraph::Direction;
+use std::collections::HashMap;
 
 pub struct VismutScript {
     graph: StableDiGraph<Node, EdgeType>,
@@ -27,27 +27,25 @@ impl VismutScript {
     }
 
     pub fn add_node(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
-        let idx = self.graph.add_node(Node {
+        self.graph.add_node(Node {
             name: name.to_string(),
             node: behavior,
-        });
-
-        idx
+        })
     }
 
     pub fn connect_execution(&mut self, from: NodeIndex, to: NodeIndex) {
         self.graph.add_edge(from, to, EdgeType::Execution);
     }
 
-    pub fn connect_data(&mut self, from: NodeIndex, to: NodeIndex, from_port: String, to_port: String) {
-        self.graph.add_edge(
-            from,
-            to,
-            EdgeType::Data {
-                from_port: from_port,
-                to_port: to_port,
-            },
-        );
+    pub fn connect_data(
+        &mut self,
+        from: NodeIndex,
+        to: NodeIndex,
+        from_port: String,
+        to_port: String,
+    ) {
+        self.graph
+            .add_edge(from, to, EdgeType::Data { from_port, to_port });
     }
 
     pub fn run(&mut self) -> Result<u32, ScriptError> {
@@ -58,11 +56,7 @@ impl VismutScript {
 
         loop {
             match self.graph.node_weight(current) {
-                Some(graph_node) => {
-                    if let Err(err) = graph_node.node.execute(&mut ctx, &self.graph, current) {
-                        return Err(err);
-                    }
-                },
+                Some(graph_node) => graph_node.node.execute(&mut ctx, &self.graph, current)?,
                 _ => return Err(ScriptError::NotExecutable),
             };
             ctx.cache.clear();

@@ -1,13 +1,13 @@
-use crate::schemas::ScriptSchema;
-use crate::schemas::RegistrySchema;
-use crate::schemas::NodeSchema;
-use crate::core::script::VismutScript;
-use crate::common::RegistryError;
-use std::collections::HashMap;
-use petgraph::graph::NodeIndex;
 use crate::common::BoxedNodeFn;
+use crate::common::RegistryError;
+use crate::core::script::VismutScript;
 #[cfg(feature = "nodes")]
 use crate::nodes::{build_io_nodes, build_math_nodes};
+use crate::schemas::NodeSchema;
+use crate::schemas::RegistrySchema;
+use crate::schemas::ScriptSchema;
+use petgraph::graph::NodeIndex;
+use std::collections::HashMap;
 
 pub struct VismutExecutionEnvironment {
     node_fns: HashMap<String, BoxedNodeFn>,
@@ -30,8 +30,11 @@ impl VismutExecutionEnvironment {
         let mut registry = Self::new();
         registry.include(build_math_nodes()).unwrap();
         registry.include(build_io_nodes()).unwrap();
-            //.include(&RANDOM_NODE_FACTORIES).unwrap();
-        log::info!("Default executor ready; loaded {} nodes", registry.node_fns.len());
+        //.include(&RANDOM_NODE_FACTORIES).unwrap();
+        log::info!(
+            "Default executor ready; loaded {} nodes",
+            registry.node_fns.len()
+        );
         registry
     }
 
@@ -44,8 +47,10 @@ impl VismutExecutionEnvironment {
             return Err(RegistryError::AlreadyRegistered);
         }
         log::debug!("Registered {}", schema.get_id());
-        self.node_fns.insert(schema.get_id().to_string(), node_factory);
-        self.node_schemas.insert(schema.get_id().to_string(), schema);
+        self.node_fns
+            .insert(schema.get_id().to_string(), node_factory);
+        self.node_schemas
+            .insert(schema.get_id().to_string(), schema);
         Ok(self)
     }
 
@@ -63,12 +68,16 @@ impl VismutExecutionEnvironment {
         Ok(self)
     }
 
-    pub fn get_node_factory(&self, node_id: &String, ) -> Result<&BoxedNodeFn, RegistryError> {
-        self.node_fns.get(node_id).ok_or(RegistryError::NotFound(String::from(node_id)))
+    pub fn get_node_factory(&self, node_id: &String) -> Result<&BoxedNodeFn, RegistryError> {
+        self.node_fns
+            .get(node_id)
+            .ok_or(RegistryError::NotFound(String::from(node_id)))
     }
 
     pub fn get_node_schema(&self, node_id: &String) -> Result<&NodeSchema, RegistryError> {
-        self.node_schemas.get(node_id).ok_or(RegistryError::NotFound(String::from(node_id)))
+        self.node_schemas
+            .get(node_id)
+            .ok_or(RegistryError::NotFound(String::from(node_id)))
     }
 
     pub fn parse(&self, schema: &ScriptSchema) -> Result<VismutScript, RegistryError> {
@@ -79,10 +88,7 @@ impl VismutExecutionEnvironment {
             Ok(node_fn) => {
                 node_indexes.insert(
                     schema.entry.id.clone(),
-                    script.set_entry(
-                        &schema.entry.id,
-                        node_fn(),
-                    ),
+                    script.set_entry(&schema.entry.id, node_fn()),
                 );
             }
         }
@@ -95,14 +101,16 @@ impl VismutExecutionEnvironment {
                     log::debug!("Created new node {}", schema.get_id());
                     match &node.defaults {
                         Some(defaults) => {
-                            new_node.set_values(&defaults);
+                            new_node.set_values(defaults);
                             log::debug!("Set defaults {:?} for node {}", defaults, schema.get_id());
                         }
-                        None => {log::debug!("No defaults found for node {}", schema.get_id());}
+                        None => {
+                            log::debug!("No defaults found for node {}", schema.get_id());
+                        }
                     }
                     let idx = script.add_node(&node.id, new_node);
                     node_indexes.insert(node.id.clone(), idx);
-                },
+                }
                 Err(e) => {
                     log::error!("{:?}", e);
                     return Err(e);
@@ -116,7 +124,6 @@ impl VismutExecutionEnvironment {
             {
                 script.connect_execution(*from, *to);
                 log::debug!("Execution connected; {} to {}", from.index(), to.index());
-
             }
         }
 
@@ -125,7 +132,13 @@ impl VismutExecutionEnvironment {
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
                 script.connect_data(*from, *to, path.from_port.clone(), path.to_port.clone());
-                log::debug!("Data connected; {}:{} to {}:{}", from.index(), to.index(), &path.from_port, &path.to_port);
+                log::debug!(
+                    "Data connected; {}:{} to {}:{}",
+                    from.index(),
+                    to.index(),
+                    &path.from_port,
+                    &path.to_port
+                );
             }
         }
         log::info!("Succesfully parsed script");
@@ -147,3 +160,8 @@ impl VismutExecutionEnvironment {
     }
 }
 
+impl Default for VismutExecutionEnvironment {
+    fn default() -> Self {
+        Self::new()
+    }
+}

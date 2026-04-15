@@ -1,5 +1,5 @@
-use std::fmt::{Debug, Formatter};
 use crate::CompiledNode;
+use std::fmt::{Debug, Formatter};
 
 #[derive(Debug, Clone)]
 pub enum EdgeType {

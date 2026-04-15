@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use crate::ScriptError;
 #[cfg(feature = "serde")]
 use serde::Serialize;
-use crate::ScriptError;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "snake_case"))]
 pub enum Value {
     Int(i32),
     Float(f32),
@@ -28,14 +28,14 @@ impl Value {
 }
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "snake_case"))]
 pub enum ValueState {
     Set(Value),
     Default,
     Unset,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "snake_case"))]
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValueType {
     Int,
@@ -53,14 +53,11 @@ impl ValueType {
             ValueType::Int => Ok(Value::Int(0)),
             ValueType::Float => Ok(Value::Float(0.0)),
             ValueType::Bool => Ok(Value::Bool(false)),
-            _ => Err(ScriptError::UnsupportedInput)
+            _ => Err(ScriptError::UnsupportedInput),
         }
     }
-    
+
     pub fn is_default_supported(&self) -> bool {
-        match self {
-            ValueType::Int | ValueType::Float | ValueType::Bool => true,
-            _ => false
-        }
+        matches!(self, ValueType::Int | ValueType::Float | ValueType::Bool)
     }
 }

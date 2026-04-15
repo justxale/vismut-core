@@ -1,6 +1,6 @@
 use crate::common::BoxedNodeFn;
-use crate::{NodeBuilder, ValueType};
 use crate::schemas::NodeSchema;
+use crate::{NodeBuilder, ValueType};
 
 pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.io.stdout")

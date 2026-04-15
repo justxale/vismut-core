@@ -1,11 +1,11 @@
 use crate::graph::{EdgeType, Node};
-use std::collections::HashMap;
-use petgraph::Direction;
+use crate::values::{Value, ValueState};
+use crate::CompiledPort;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
-use crate::{CompiledPort};
-use crate::values::{Value, ValueState};
+use petgraph::Direction;
+use std::collections::HashMap;
 
 pub struct ExecutionContext {
     pub cache: HashMap<(NodeIndex, String), Value>,
@@ -20,10 +20,10 @@ impl ExecutionContext {
     ) -> ValueState {
         log::debug!("Getting inputs for {}", node.index());
         for edge in graph.edges_directed(node, Direction::Incoming) {
-            if let EdgeType::Data { from_port, to_port } = edge.weight() {
-                if *to_port == port.title() {
-                    return self.evaluate(edge.source(), &graph, from_port);
-                }
+            if let EdgeType::Data { from_port, to_port } = edge.weight()
+                && *to_port == port.title()
+            {
+                return self.evaluate(edge.source(), graph, from_port);
             }
         }
         for t in port.types() {
@@ -47,9 +47,10 @@ impl ExecutionContext {
         let behavior = &graph[node].node;
         match behavior.evaluate(self, graph, node, output_port) {
             Ok(v) => {
-                self.cache.insert((node, output_port.to_string()), v.clone());
+                self.cache
+                    .insert((node, output_port.to_string()), v.clone());
                 ValueState::Set(v)
-            },
+            }
             Err(_) => ValueState::Unset,
         }
     }

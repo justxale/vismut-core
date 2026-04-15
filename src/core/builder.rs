@@ -1,19 +1,20 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
 use crate::common::{BoxedEvaluableFn, BoxedExecutableFn, BoxedNodeFn};
 use crate::core::NodeValues;
 use crate::schemas::{NodeSchema, PortSchema};
+use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct PortBuilder {
     title: &'static str,
-    accepted_types: Vec<ValueType>
+    accepted_types: Vec<ValueType>,
 }
 
 impl PortBuilder {
     pub fn new(title: &'static str) -> Self {
         Self {
-            title, accepted_types: Vec::new()
+            title,
+            accepted_types: Vec::new(),
         }
     }
 
@@ -60,7 +61,7 @@ impl NodeBuilder {
 
     pub fn with_execution<F>(mut self, execute_fn: F) -> Self
     where
-        F: Fn(&NodeValues) -> Result<(), ScriptError> + 'static
+        F: Fn(&NodeValues) -> Result<(), ScriptError> + 'static,
     {
         self.execute_fn = Some(Arc::new(execute_fn));
         self
@@ -68,7 +69,7 @@ impl NodeBuilder {
 
     pub fn with_evaluation<F>(mut self, evaluate_fn: F) -> Self
     where
-        F: Fn(&NodeValues, &String) -> Result<Value, ScriptError> + 'static
+        F: Fn(&NodeValues, &String) -> Result<Value, ScriptError> + 'static,
     {
         self.evaluate_fn = Some(Arc::new(evaluate_fn));
         self
@@ -78,7 +79,8 @@ impl NodeBuilder {
         if accepted_types.is_empty() {
             panic!("There must be at least one ValueType specified")
         }
-        self.input_ports.push(PortBuilder::new(title).with_types(accepted_types));
+        self.input_ports
+            .push(PortBuilder::new(title).with_types(accepted_types));
         self
     }
 
@@ -86,7 +88,10 @@ impl NodeBuilder {
         if self.exec_input_ports.is_none() {
             self.exec_input_ports = Some(Vec::new());
         }
-        self.exec_input_ports.as_mut().unwrap().push(PortSchema::execution(title));
+        self.exec_input_ports
+            .as_mut()
+            .unwrap()
+            .push(PortSchema::execution(title));
         self
     }
 
@@ -96,7 +101,8 @@ impl NodeBuilder {
     }
 
     pub fn with_output(mut self, title: &'static str, returned_types: &[ValueType]) -> Self {
-        self.input_ports.push(PortBuilder::new(title).with_types(returned_types));
+        self.input_ports
+            .push(PortBuilder::new(title).with_types(returned_types));
         self
     }
 
@@ -104,7 +110,10 @@ impl NodeBuilder {
         if self.exec_output_ports.is_none() {
             self.exec_output_ports = Some(Vec::new());
         }
-        self.exec_output_ports.as_mut().unwrap().push(PortSchema::execution(title));
+        self.exec_output_ports
+            .as_mut()
+            .unwrap()
+            .push(PortSchema::execution(title));
         self
     }
 
@@ -119,40 +128,50 @@ impl NodeBuilder {
         let mut inputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
         let mut outputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
 
-        if let Some(_) = self.execute_fn && let Some(ref v) = self.exec_input_ports {
-            v.is_empty().then(|| inputs.push(PortSchema::execution("exec")));
+        if let Some(_) = self.execute_fn
+            && let Some(ref v) = self.exec_input_ports
+        {
+            v.is_empty()
+                .then(|| inputs.push(PortSchema::execution("exec")));
         }
 
-        if let Some(_) = self.execute_fn && let Some(ref v) = self.exec_output_ports {
-            v.is_empty().then(|| outputs.push(PortSchema::execution("exec")));
+        if let Some(_) = self.execute_fn
+            && let Some(ref v) = self.exec_output_ports
+        {
+            v.is_empty()
+                .then(|| outputs.push(PortSchema::execution("exec")));
         }
 
-        NodeSchema::new(
-            self.node_id, is_executable, is_evaluable,
-            inputs, outputs
-        )
+        NodeSchema::new(self.node_id, is_executable, is_evaluable, inputs, outputs)
     }
 
     pub fn build(self) -> (NodeSchema, BoxedNodeFn) {
         let schema = self.schema();
-        let inputs: Vec<(&'static str, CompiledPort)> = self.input_ports.into_iter().map(|port| {
-            (port.title, port.build())
-        }).collect();
-        let outputs: Vec<(&'static str, CompiledPort)> = self.output_ports.into_iter().map(|port| {
-            (port.title, port.build())
-        }).collect();
+        let inputs: Vec<(&'static str, CompiledPort)> = self
+            .input_ports
+            .into_iter()
+            .map(|port| (port.title, port.build()))
+            .collect();
+        let outputs: Vec<(&'static str, CompiledPort)> = self
+            .output_ports
+            .into_iter()
+            .map(|port| (port.title, port.build()))
+            .collect();
 
-        (schema, Box::new(move || {
-            CompiledNode::new(
-                self.execute_fn.clone().unwrap_or(
-                    Arc::new(|_| Err(ScriptError::NotExecutable))
-                ),
-                self.evaluate_fn.clone().unwrap_or(
-                    Arc::new(|_, _| Err(ScriptError::NotEvaluable))
-                ),
-                HashMap::from_iter(inputs.iter().cloned()),
-                HashMap::from_iter(outputs.iter().cloned()),
-            )
-        }))
+        (
+            schema,
+            Box::new(move || {
+                CompiledNode::new(
+                    self.execute_fn
+                        .clone()
+                        .unwrap_or(Arc::new(|_| Err(ScriptError::NotExecutable))),
+                    self.evaluate_fn
+                        .clone()
+                        .unwrap_or(Arc::new(|_, _| Err(ScriptError::NotEvaluable))),
+                    HashMap::from_iter(inputs.iter().cloned()),
+                    HashMap::from_iter(outputs.iter().cloned()),
+                )
+            }),
+        )
     }
 }

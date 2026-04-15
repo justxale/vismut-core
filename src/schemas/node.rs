@@ -1,7 +1,7 @@
-#[cfg(feature = "serde")]
-use serde::Serialize;
 use crate::core::PortBuilder;
 use crate::values::ValueType;
+#[cfg(feature = "serde")]
+use serde::Serialize;
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Clone, Debug)]
@@ -31,7 +31,7 @@ impl NodeSchema {
     }
 
     pub fn get_id(&self) -> &str {
-        &self.node_id
+        self.node_id
     }
 
     pub fn is_executable(&self) -> bool {
@@ -56,21 +56,23 @@ impl NodeSchema {
 pub struct PortSchema {
     pub name: &'static str,
     pub kind: PortType,
-    pub types: Vec<ValueType>
+    pub types: Vec<ValueType>,
 }
 
 impl PortSchema {
     pub fn execution(name: &'static str) -> Self {
         Self {
             kind: PortType::Execution,
-            name, types: vec![]
+            name,
+            types: vec![],
         }
     }
-    
-    pub fn data(name: &'static str, types: &Vec<ValueType>) -> Self {
+
+    pub fn data(name: &'static str, types: &[ValueType]) -> Self {
         Self {
             kind: PortType::Data,
-            name, types: types.clone()
+            name,
+            types: types.to_owned(),
         }
     }
 }
@@ -81,7 +83,7 @@ impl From<&PortBuilder> for PortSchema {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all="snake_case"))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "snake_case"))]
 #[derive(Debug, Clone)]
 pub enum PortType {
     Execution,
