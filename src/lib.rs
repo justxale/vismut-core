@@ -7,7 +7,6 @@ mod graph;
 pub mod schemas;
 mod values;
 
-pub use core::{CompiledNode, NodeBuilder, CompiledPort, VismutExecutionEnvironment};
+pub use core::{CompiledNode, CompiledPort, VismutExecutionEnvironment, NodeBuilder};
 pub use common::{RegistryError, ScriptError};
 pub use values::{Value, ValueType};
-

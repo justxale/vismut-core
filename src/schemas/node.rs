@@ -1,6 +1,6 @@
 #[cfg(feature = "serde")]
 use serde::Serialize;
-use crate::core::wrapper::PortBuilder;
+use crate::core::PortBuilder;
 use crate::values::ValueType;
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
