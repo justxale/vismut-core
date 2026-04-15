@@ -88,12 +88,12 @@ impl CompiledNode {
         }
     }
 
-    pub fn execute(
+    fn get_values(
         &self,
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
-    ) -> Result<(), ScriptError> {
+    ) -> Result<NodeValues, ScriptError> {
         let mut values = NodeValues::new(&self.inputs);
         for (port_title, port) in &self.inputs {
             match ctx.get_input(node, graph, port) {
@@ -110,14 +110,25 @@ impl CompiledNode {
                         match port.types[0].default_value() {
                             Ok(value) => values.insert(String::from(*port_title), value),
                             Err(error) => return Err(error)
-
                         }
                     }
                 },
                 ValueState::Unset => return Err(ScriptError::MissingInput(format!("{}", port_title)))
             }
         }
-        (self.execute_fn)(&values)
+        Ok(values)
+    }
+
+    pub fn execute(
+        &self,
+        ctx: &mut ExecutionContext,
+        graph: &StableDiGraph<Node, EdgeType>,
+        node: NodeIndex,
+    ) -> Result<(), ScriptError> {
+        match self.get_values(ctx, graph, node) {
+            Ok(values) =>  (self.execute_fn)(&values),
+            Err(error) => Err(error)
+        }
     }
 
     pub fn evaluate(
@@ -127,29 +138,10 @@ impl CompiledNode {
         node: NodeIndex,
         output_port: &String,
     ) -> Result<Value, ScriptError> {
-        let mut values = NodeValues::new(&self.inputs);
-        for (port_title, port) in &self.inputs {
-            match ctx.get_input(node, graph, port) {
-                ValueState::Set(ref value) => {
-                    if !port.validate(value) {
-                        return Err(ScriptError::UnsupportedInput)
-                    }
-                    values.insert(String::from(*port_title), value.clone());
-                },
-                ValueState::Default => {
-                    if let Some(default_value) = &port.value {
-                        values.insert(String::from(*port_title), default_value.clone());
-                    } else {
-                        match port.types[0].default_value() {
-                            Ok(value) => values.insert(String::from(*port_title), value),
-                            Err(error) => return Err(error)
-                        }
-                    }
-                },
-                ValueState::Unset => return Err(ScriptError::MissingInput(format!("{}", port_title)))
-            }
+        match self.get_values(ctx, graph, node) {
+            Ok(values) =>  (self.evaluate_fn)(&values, &output_port.clone()),
+            Err(error) => Err(error)
         }
-        (self.evaluate_fn)(&values, &output_port.clone())
     }
 
     pub fn set_values(&mut self, values: &HashMap<String, Option<Value>>) -> Option<()> {
