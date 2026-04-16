@@ -61,7 +61,7 @@ impl NodeBuilder {
 
     pub fn with_execution<F>(mut self, execute_fn: F) -> Self
     where
-        F: Fn(&NodeValues) -> Result<(), ScriptError> + 'static,
+        F: Fn(&NodeValues) -> Result<(), ScriptError> + Send + Sync + 'static,
     {
         self.execute_fn = Some(Arc::new(execute_fn));
         self
@@ -69,7 +69,7 @@ impl NodeBuilder {
 
     pub fn with_evaluation<F>(mut self, evaluate_fn: F) -> Self
     where
-        F: Fn(&NodeValues, &String) -> Result<Value, ScriptError> + 'static,
+        F: Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync + 'static,
     {
         self.evaluate_fn = Some(Arc::new(evaluate_fn));
         self

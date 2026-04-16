@@ -47,6 +47,6 @@ impl fmt::Display for ScriptError {
 
 impl Error for ScriptError {}
 
-pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
-pub type ArcedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError>>;
-pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode>;
+pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError> + Send + Sync>;
+pub type ArcedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync>;
+pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode + Send + Sync>;
