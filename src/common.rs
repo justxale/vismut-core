@@ -1,7 +1,8 @@
 use crate::core::NodeValues;
 use crate::values::Value;
 use crate::CompiledNode;
-use std::fmt::Display;
+use std::error::Error;
+use std::fmt;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -11,8 +12,8 @@ pub enum RegistryError {
     NotFound(String),
 }
 
-impl Display for RegistryError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for RegistryError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             RegistryError::AlreadyRegistered => f.write_str("AlreadyRegistered"),
             RegistryError::Failed => f.write_str("Failed"),
@@ -20,6 +21,8 @@ impl Display for RegistryError {
         }
     }
 }
+
+impl Error for RegistryError {}
 
 #[derive(Debug)]
 pub enum ScriptError {
@@ -29,6 +32,20 @@ pub enum ScriptError {
     NotExecutable,
     RuntimeError(String),
 }
+
+impl fmt::Display for ScriptError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ScriptError::MissingInput(v) => f.write_fmt(format_args!("missing input for port {v}")),
+            ScriptError::RuntimeError(v) => f.write_fmt(format_args!("runtime error occured: {v}")),
+            ScriptError::UnsupportedInput => f.write_str("unsupported input"),
+            ScriptError::NotEvaluable => f.write_str("node is not evaluable"),
+            ScriptError::NotExecutable => f.write_str("node is not executable")
+        }
+    }
+}
+
+impl Error for ScriptError {}
 
 pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
 pub type ArcedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError>>;
