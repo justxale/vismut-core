@@ -1,4 +1,4 @@
-use crate::common::{BoxedEvaluableFn, BoxedExecutableFn, ScriptError};
+use crate::common::{ArcedEvaluableFn, ArcedExecutableFn, ScriptError};
 use crate::context::ExecutionContext;
 use crate::graph::{EdgeType, Node};
 use crate::values::Value;
@@ -71,16 +71,16 @@ impl CompiledPort {
 }
 
 pub struct CompiledNode {
-    execute_fn: BoxedExecutableFn,
-    evaluate_fn: BoxedEvaluableFn,
+    execute_fn: ArcedExecutableFn,
+    evaluate_fn: ArcedEvaluableFn,
     inputs: HashMap<&'static str, CompiledPort>,
     _outputs: HashMap<&'static str, CompiledPort>,
 }
 
 impl CompiledNode {
     pub fn new(
-        execute_fn: BoxedExecutableFn,
-        evaluate_fn: BoxedEvaluableFn,
+        execute_fn: ArcedExecutableFn,
+        evaluate_fn: ArcedEvaluableFn,
         inputs: HashMap<&'static str, CompiledPort>,
         outputs: HashMap<&'static str, CompiledPort>,
     ) -> Self {

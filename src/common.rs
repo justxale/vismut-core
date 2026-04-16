@@ -30,6 +30,6 @@ pub enum ScriptError {
     RuntimeError(String),
 }
 
-pub type BoxedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
-pub type BoxedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError>>;
+pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError>>;
+pub type ArcedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError>>;
 pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode>;

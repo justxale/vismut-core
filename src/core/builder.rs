@@ -1,4 +1,4 @@
-use crate::common::{BoxedEvaluableFn, BoxedExecutableFn, BoxedNodeFn};
+use crate::common::{ArcedEvaluableFn, ArcedExecutableFn, BoxedNodeFn};
 use crate::core::NodeValues;
 use crate::schemas::{NodeSchema, PortSchema};
 use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
@@ -37,8 +37,8 @@ impl PortBuilder {
 }
 
 pub struct NodeBuilder {
-    execute_fn: Option<BoxedExecutableFn>,
-    evaluate_fn: Option<BoxedEvaluableFn>,
+    execute_fn: Option<ArcedExecutableFn>,
+    evaluate_fn: Option<ArcedEvaluableFn>,
     input_ports: Vec<PortBuilder>,
     output_ports: Vec<PortBuilder>,
     exec_input_ports: Option<Vec<PortSchema>>,
