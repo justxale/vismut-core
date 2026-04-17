@@ -1,10 +1,12 @@
 use crate::ScriptError;
+
 #[cfg(feature = "serde")]
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
+
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "snake_case"))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(rename_all = "snake_case"))]
 pub enum Value {
     Int(i32),
     Float(f32),

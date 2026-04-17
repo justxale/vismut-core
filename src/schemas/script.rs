@@ -2,9 +2,9 @@ use crate::values::Value;
 use std::collections::HashMap;
 
 #[cfg(feature = "serde")]
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ScriptNode {
     pub node_id: String,
@@ -12,14 +12,14 @@ pub struct ScriptNode {
     pub defaults: Option<HashMap<String, Option<Value>>>,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ScriptExecutionPath {
     pub from: String,
     pub to: String,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ScriptDataPath {
     pub from: String,
@@ -28,7 +28,7 @@ pub struct ScriptDataPath {
     pub to_port: String,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ScriptSchema {
     pub entry: ScriptNode,
