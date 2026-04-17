@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use serde::Serialize;
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ScriptNode {
     pub node_id: String,
     pub id: String,
@@ -13,14 +13,14 @@ pub struct ScriptNode {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ScriptExecutionPath {
     pub from: String,
     pub to: String,
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ScriptDataPath {
     pub from: String,
     pub from_port: String,
@@ -29,7 +29,7 @@ pub struct ScriptDataPath {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize))]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ScriptSchema {
     pub entry: ScriptNode,
     pub nodes: Vec<ScriptNode>,
