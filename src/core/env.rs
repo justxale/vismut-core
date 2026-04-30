@@ -8,6 +8,7 @@ use crate::schemas::RegistrySchema;
 use crate::schemas::ScriptSchema;
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
 
 pub struct VismutExecutionEnvironment {
     node_fns: HashMap<String, BoxedNodeFn>,
@@ -163,5 +164,14 @@ impl VismutExecutionEnvironment {
 impl Default for VismutExecutionEnvironment {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Debug for VismutExecutionEnvironment {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("VismutExecutionEnvironment")
+            .field("schema", &self.get_schema())
+            .field("nodes", &self.node_fns.len())
+            .finish()
     }
 }
