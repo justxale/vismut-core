@@ -10,8 +10,8 @@ pub fn build_add_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int, ValueType::Float])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(0));
 
             match (a, b) {
                 (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a + b)),
@@ -30,8 +30,8 @@ pub fn build_subtract_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int, ValueType::Float])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(0));
 
             match (a, b) {
                 (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a - b)),
@@ -50,8 +50,8 @@ pub fn build_multiply_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int, ValueType::Float])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(0));
 
             match (a, b) {
                 (Value::Int(a), Value::Int(b)) => Ok(Value::Int(a * b)),
@@ -70,8 +70,8 @@ pub fn build_divide_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int, ValueType::Float])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(0));
 
             match b {
                 Value::Int(0) => return Err(ScriptError::UnsupportedInput),
@@ -96,8 +96,8 @@ pub fn build_pow_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int, ValueType::Float])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(0));
 
             match (a, b) {
                 (Value::Int(a), Value::Int(b)) => {
@@ -122,8 +122,8 @@ pub fn build_mod_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("b", &[ValueType::Int])
         .with_output("res", &[ValueType::Int])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
-            let b = values.get("b");
+            let a = values.get("a").unwrap_or(Value::Int(0));
+            let b = values.get("b").unwrap_or(Value::Int(1));
 
             if let Value::Int(0) = b {
                 return Err(ScriptError::UnsupportedInput);
@@ -141,7 +141,7 @@ pub fn build_abs_node() -> (NodeSchema, BoxedNodeFn) {
         .with_input("a", &[ValueType::Int, ValueType::Float])
         .with_output("res", &[ValueType::Int])
         .with_evaluation(|values, _| {
-            let a = values.get("a");
+            let a = values.get("a").unwrap_or(Value::Int(0));
 
             match a {
                 Value::Int(a) => Ok(Value::Int(a.abs())),

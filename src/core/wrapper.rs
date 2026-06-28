@@ -7,16 +7,16 @@ use petgraph::stable_graph::NodeIndex;
 use petgraph::stable_graph::StableDiGraph;
 use std::collections::HashMap;
 
-pub struct NodeValues<'a> {
-    ports: &'a HashMap<&'static str, CompiledPort>,
+pub struct NodeValues {
+    // TODO: maybe use ports for some default value evaluation
+    // ports: &'a HashMap<&'static str, CompiledPort>,
     map: HashMap<String, Value>,
 }
 
-impl<'a> NodeValues<'a> {
-    pub fn new(ports: &'a HashMap<&'static str, CompiledPort>) -> Self {
+impl NodeValues {
+    pub fn new() -> Self {
         Self {
             map: HashMap::new(),
-            ports,
         }
     }
 
@@ -24,16 +24,8 @@ impl<'a> NodeValues<'a> {
         self.map.insert(key, value);
     }
 
-    pub fn get(&self, key: &str) -> Value {
-        match self.map.get(key) {
-            Some(value) => value.clone(),
-            None => {
-                if let Some(port) = self.ports.get(key) {
-                    return port.types[0].default_value().unwrap();
-                }
-                panic!("Unknown port: {}", key)
-            }
-        }
+    pub fn get(&self, key: &str) -> Option<Value> {
+        self.map.get(key).map(|v| v.clone())
     }
 }
 
@@ -97,8 +89,8 @@ impl CompiledNode {
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
-    ) -> Result<NodeValues<'_>, ScriptError> {
-        let mut values = NodeValues::new(&self.inputs);
+    ) -> Result<NodeValues, ScriptError> {
+        let mut values = NodeValues::new();
         for (port_title, port) in &self.inputs {
             match ctx.get_input(node, graph, port) {
                 ValueState::Set(ref value) => {
