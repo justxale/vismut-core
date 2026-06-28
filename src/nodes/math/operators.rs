@@ -1,7 +1,7 @@
+use crate::NodeBuilder;
 use crate::common::BoxedNodeFn;
 use crate::schemas::NodeSchema;
 use crate::values::ValueType;
-use crate::NodeBuilder;
 use crate::{ScriptError, Value};
 
 pub fn build_add_node() -> (NodeSchema, BoxedNodeFn) {

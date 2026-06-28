@@ -5,6 +5,8 @@ use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
 use std::collections::HashMap;
 use std::sync::Arc;
 
+pub type BuiltNode = (NodeSchema, BoxedNodeFn);
+
 pub struct PortBuilder {
     title: &'static str,
     accepted_types: Vec<ValueType>,
@@ -145,7 +147,7 @@ impl NodeBuilder {
         NodeSchema::new(self.node_id, is_executable, is_evaluable, inputs, outputs)
     }
 
-    pub fn build(self) -> (NodeSchema, BoxedNodeFn) {
+    pub fn build(self) -> BuiltNode {
         let schema = self.schema();
         let inputs: Vec<(&'static str, CompiledPort)> = self
             .input_ports

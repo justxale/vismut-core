@@ -1,10 +1,10 @@
+use crate::CompiledPort;
 use crate::graph::{EdgeType, Node};
 use crate::values::{Value, ValueState};
-use crate::CompiledPort;
+use petgraph::Direction;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
-use petgraph::Direction;
 use std::collections::HashMap;
 
 pub struct ExecutionContext {

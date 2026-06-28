@@ -1,6 +1,6 @@
+use crate::CompiledNode;
 use crate::core::NodeValues;
 use crate::values::Value;
-use crate::CompiledNode;
 use std::error::Error;
 use std::fmt;
 use std::sync::Arc;
@@ -40,7 +40,7 @@ impl fmt::Display for ScriptError {
             ScriptError::RuntimeError(v) => f.write_fmt(format_args!("runtime error occured: {v}")),
             ScriptError::UnsupportedInput => f.write_str("unsupported input"),
             ScriptError::NotEvaluable => f.write_str("node is not evaluable"),
-            ScriptError::NotExecutable => f.write_str("node is not executable")
+            ScriptError::NotExecutable => f.write_str("node is not executable"),
         }
     }
 }
@@ -48,5 +48,6 @@ impl fmt::Display for ScriptError {
 impl Error for ScriptError {}
 
 pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<(), ScriptError> + Send + Sync>;
-pub type ArcedEvaluableFn = Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync>;
+pub type ArcedEvaluableFn =
+    Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync>;
 pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode + Send + Sync>;

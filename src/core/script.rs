@@ -1,10 +1,10 @@
 use crate::context::ExecutionContext;
 use crate::graph::{EdgeType, Node};
 use crate::{CompiledNode, ScriptError};
+use petgraph::Direction;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
-use petgraph::Direction;
 use std::collections::HashMap;
 
 pub struct VismutScript {
