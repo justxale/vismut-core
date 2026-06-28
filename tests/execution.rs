@@ -34,6 +34,7 @@ fn run_script() -> Result<(), ScriptError> {
         ],
         exec_paths: vec![ScriptExecutionPath {
             from: String::from("7485b216-161d-425e-96ce-3e694b80fa9b"),
+            from_port: String::from("start"),
             to: String::from("3cec649b-27e6-4cf0-b857-4eb6ae2d0692"),
         }],
         data_paths: vec![ScriptDataPath {
@@ -45,7 +46,7 @@ fn run_script() -> Result<(), ScriptError> {
     };
     match env.parse(&script) {
         Ok(mut ready) => {
-            ready.run().unwrap();
+            assert_eq!(ready.run().unwrap(), 2);
             Ok(())
         }
         Err(e) => Err(ScriptError::RuntimeError(e.to_string())),

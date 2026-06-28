@@ -63,7 +63,7 @@ impl NodeBuilder {
 
     pub fn with_execution<F>(mut self, execute_fn: F) -> Self
     where
-        F: Fn(&NodeValues) -> Result<(), ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
     {
         self.execute_fn = Some(Arc::new(execute_fn));
         self

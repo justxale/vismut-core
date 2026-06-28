@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 
 #[derive(Debug, Clone)]
 pub enum EdgeType {
-    Execution,
+    Execution(String),
     Data { from_port: String, to_port: String },
 }
 

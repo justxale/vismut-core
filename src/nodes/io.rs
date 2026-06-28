@@ -8,15 +8,16 @@ pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
         .with_execution(|values| {
             let v = values.get("value");
             log::debug!("core.io.stdout: {:?}", v);
-            Ok(())
+            Ok(None)
         })
         .build()
 }
 
 pub fn build_start_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.io.start")
-        .with_execution(|_| Ok(()))
+        .with_execution(|_| Ok(Some("start")))
         .with_no_exec_input()
+        .with_exec_output("start")
         .build()
 }
 

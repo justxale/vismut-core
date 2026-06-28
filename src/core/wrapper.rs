@@ -120,11 +120,9 @@ impl CompiledNode {
         ctx: &mut ExecutionContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
-    ) -> Result<(), ScriptError> {
-        match self.get_values(ctx, graph, node) {
-            Ok(values) => (self.execute_fn)(&values),
-            Err(error) => Err(error),
-        }
+    ) -> Result<Option<&'static str>, ScriptError> { 
+        self.get_values(ctx, graph, node)
+            .map(|values| (self.execute_fn)(&values))?
     }
 
     pub fn evaluate(

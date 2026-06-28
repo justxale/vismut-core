@@ -15,6 +15,7 @@ pub struct ScriptNode {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ScriptExecutionPath {
+    pub from_port: String,
     pub from: String,
     pub to: String,
 }

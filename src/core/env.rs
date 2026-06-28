@@ -123,7 +123,7 @@ impl VismutExecutionEnvironment {
             if let (Some(from), Some(to)) =
                 (node_indexes.get(&path.from), node_indexes.get(&path.to))
             {
-                script.connect_execution(*from, *to);
+                script.connect_execution(*from, *to, path.from_port.clone());
                 log::debug!("Execution connected; {} to {}", from.index(), to.index());
             }
         }
