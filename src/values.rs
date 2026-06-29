@@ -13,6 +13,7 @@ use std::collections::HashMap;
 )]
 pub enum Value {
     Int(i32),
+    BigInt(i64),
     Float(f32),
     Bool(bool),
     String(String),
@@ -24,6 +25,7 @@ impl Value {
     pub fn value_type(&self) -> ValueType {
         match self {
             Value::Int(_) => ValueType::Int,
+            Value::BigInt(_) => ValueType::BigInt,
             Value::Float(_) => ValueType::Float,
             Value::Bool(_) => ValueType::Bool,
             Value::String(_) => ValueType::String,
@@ -45,6 +47,7 @@ pub enum ValueState {
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValueType {
     Int,
+    BigInt,
     Float,
     Bool,
     String,
