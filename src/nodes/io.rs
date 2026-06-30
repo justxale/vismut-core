@@ -5,7 +5,7 @@ use crate::{NodeBuilder, ValueType};
 pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.io.stdout")
         .with_input("value", &[ValueType::Any])
-        .with_execution(|values| {
+        .with_execution(|values, _| {
             let v = values.get("value");
             log::debug!("core.io.stdout: {:?}", v);
             Ok(None)
@@ -15,7 +15,7 @@ pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
 
 pub fn build_start_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.io.start")
-        .with_execution(|_| Ok(Some("start")))
+        .with_execution(|_, _| Ok(Some("start")))
         .with_no_exec_input()
         .with_exec_output("start")
         .build()

@@ -10,13 +10,13 @@ use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
-pub struct VismutExecutionEnvironment {
+pub struct VismutRuntime {
     node_fns: HashMap<String, BoxedNodeFn>,
     node_schemas: HashMap<String, NodeSchema>,
     cached_schema: Option<RegistrySchema>,
 }
 
-impl VismutExecutionEnvironment {
+impl VismutRuntime {
     pub fn new() -> Self {
         Self {
             node_fns: HashMap::new(),
@@ -26,17 +26,16 @@ impl VismutExecutionEnvironment {
     }
 
     #[cfg(feature = "nodes")]
-    pub fn default() -> Self {
+    pub fn with_builtins(mut self) -> Self {
         log::debug!("Using default executor");
-        let mut registry = Self::new();
-        registry.include(build_math_nodes()).unwrap();
-        registry.include(build_io_nodes()).unwrap();
+        self.include(build_math_nodes()).unwrap();
+        self.include(build_io_nodes()).unwrap();
         //.include(&RANDOM_NODE_FACTORIES).unwrap();
         log::info!(
             "Default executor ready; loaded {} nodes",
-            registry.node_fns.len()
+            self.node_fns.len()
         );
-        registry
+        self
     }
 
     pub fn register(
@@ -161,13 +160,13 @@ impl VismutExecutionEnvironment {
     }
 }
 
-impl Default for VismutExecutionEnvironment {
+impl Default for VismutRuntime {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Debug for VismutExecutionEnvironment {
+impl Debug for VismutRuntime {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("VismutExecutionEnvironment")
             .field("schema", &self.get_schema())

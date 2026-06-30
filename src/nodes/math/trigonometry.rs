@@ -6,7 +6,7 @@ pub fn build_sin_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.math.sin")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
-        .with_evaluation(|values, _| {
+        .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             match a {
                 Value::Int(a) => Ok(Value::Float((a as f32).sin())),
@@ -21,7 +21,7 @@ pub fn build_cos_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.math.cos")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
-        .with_evaluation(|values, _| {
+        .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             match a {
                 Value::Int(a) => Ok(Value::Float((a as f32).cos())),
@@ -36,7 +36,7 @@ pub fn build_tan_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.math.tan")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
-        .with_evaluation(|values, _| {
+        .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             match a {
                 Value::Int(a) => Ok(Value::Float((a as f32).tan())),
@@ -51,7 +51,7 @@ pub fn build_cot_node() -> (NodeSchema, BoxedNodeFn) {
     NodeBuilder::new("core.math.cot")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
-        .with_evaluation(|values, _| {
+        .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             match a {
                 Value::Int(a) => Ok(Value::Float(1.0 / (a as f32).tan())),

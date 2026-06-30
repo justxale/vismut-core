@@ -1,3 +1,4 @@
+use std::any::{Any, TypeId};
 use crate::CompiledPort;
 use crate::graph::{EdgeType, Node};
 use crate::values::{Value, ValueState};
@@ -7,11 +8,31 @@ use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
 use std::collections::HashMap;
 
-pub struct ExecutionContext {
-    pub cache: HashMap<(NodeIndex, String), Value>,
+pub struct RuntimeContext {
+    cache: HashMap<(NodeIndex, String), Value>,
+    ctx: HashMap<TypeId, Box<dyn Any>>
 }
 
-impl ExecutionContext {
+impl RuntimeContext {
+    pub fn new() -> Self {
+        Self {
+            cache: HashMap::new(),
+            ctx: HashMap::new()
+        }
+    }
+    
+    pub fn provide<T: Any>(&mut self, value: T) {
+        self.ctx.insert(TypeId::of::<T>(), Box::new(value));
+    }
+    
+    pub fn get<T: Any>(&self) -> Option<&T> {
+        self.ctx.get(&TypeId::of::<T>())?.downcast_ref()
+    }
+    
+    pub fn get_mut<T: Any>(&mut self) -> Option<&mut T> {
+        self.ctx.get_mut(&TypeId::of::<T>())?.downcast_mut()
+    }
+    
     pub fn get_input(
         &mut self,
         node: NodeIndex,
@@ -53,5 +74,9 @@ impl ExecutionContext {
             }
             Err(_) => ValueState::Unset,
         }
+    }
+    
+    pub fn clear_cache(&mut self) {
+        self.cache.clear();
     }
 }

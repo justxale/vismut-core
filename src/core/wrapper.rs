@@ -1,5 +1,5 @@
 use crate::common::{ArcedEvaluableFn, ArcedExecutableFn, ScriptError};
-use crate::context::ExecutionContext;
+use crate::context::RuntimeContext;
 use crate::graph::{EdgeType, Node};
 use crate::values::Value;
 use crate::values::{ValueState, ValueType};
@@ -86,7 +86,7 @@ impl CompiledNode {
 
     fn get_values(
         &'_ self,
-        ctx: &mut ExecutionContext,
+        ctx: &mut RuntimeContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
     ) -> Result<NodeValues, ScriptError> {
@@ -117,23 +117,23 @@ impl CompiledNode {
 
     pub fn execute(
         &self,
-        ctx: &mut ExecutionContext,
+        ctx: &mut RuntimeContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
     ) -> Result<Option<&'static str>, ScriptError> { 
         self.get_values(ctx, graph, node)
-            .map(|values| (self.execute_fn)(&values))?
+            .map(|values| (self.execute_fn)(&values, ctx))?
     }
 
     pub fn evaluate(
         &self,
-        ctx: &mut ExecutionContext,
+        ctx: &mut RuntimeContext,
         graph: &StableDiGraph<Node, EdgeType>,
         node: NodeIndex,
         output_port: &str,
     ) -> Result<Value, ScriptError> {
         match self.get_values(ctx, graph, node) {
-            Ok(values) => (self.evaluate_fn)(&values, &output_port.to_owned()),
+            Ok(values) => (self.evaluate_fn)(&values, &output_port.to_owned(), ctx),
             Err(error) => Err(error),
         }
     }

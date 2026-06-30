@@ -4,6 +4,7 @@ use crate::values::Value;
 use std::error::Error;
 use std::fmt;
 use std::sync::Arc;
+use crate::context::RuntimeContext;
 
 #[derive(Debug)]
 pub enum RegistryError {
@@ -47,7 +48,7 @@ impl fmt::Display for ScriptError {
 
 impl Error for ScriptError {}
 
-pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues) -> Result<Option<&'static str>, ScriptError> + Send + Sync>;
+pub type ArcedExecutableFn = Arc<dyn Fn(&NodeValues, &RuntimeContext) -> Result<Option<&'static str>, ScriptError> + Send + Sync>;
 pub type ArcedEvaluableFn =
-    Arc<dyn Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync>;
+    Arc<dyn Fn(&NodeValues, &String, &RuntimeContext) -> Result<Value, ScriptError> + Send + Sync>;
 pub type BoxedNodeFn = Box<dyn Fn() -> CompiledNode + Send + Sync>;

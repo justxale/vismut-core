@@ -1,43 +1,44 @@
-use crate::context::ExecutionContext;
+use crate::context::RuntimeContext;
 use crate::graph::{EdgeType, Node};
 use crate::{CompiledNode, ScriptError};
 use petgraph::Direction;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
-use std::collections::HashMap;
 
 pub struct VismutScript {
     graph: StableDiGraph<Node, EdgeType>,
     entry: Option<NodeIndex>,
+    ctx: RuntimeContext,
 }
 
 impl VismutScript {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             graph: StableDiGraph::new(),
             entry: None,
+            ctx: RuntimeContext::new()
         }
     }
 
-    pub fn set_entry(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
+    pub(crate) fn set_entry(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
         let idx = self.add_node(name, behavior);
         self.entry = Some(idx);
         idx
     }
 
-    pub fn add_node(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
+    pub(crate) fn add_node(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
         self.graph.add_node(Node {
             name: name.to_string(),
             node: behavior,
         })
     }
 
-    pub fn connect_execution(&mut self, from: NodeIndex, to: NodeIndex, from_port: String) {
+    pub(crate) fn connect_execution(&mut self, from: NodeIndex, to: NodeIndex, from_port: String) {
         self.graph.add_edge(from, to, EdgeType::Execution(from_port));
     }
 
-    pub fn connect_data(
+    pub(crate) fn connect_data(
         &mut self,
         from: NodeIndex,
         to: NodeIndex,
@@ -48,23 +49,24 @@ impl VismutScript {
             .add_edge(from, to, EdgeType::Data { from_port, to_port });
     }
 
+    pub fn ctx(&mut self) -> &mut RuntimeContext {
+        &mut self.ctx
+    }
+
     pub fn run(&mut self) -> Result<u16, ScriptError> {
         let mut current = self.entry.ok_or_else(|| panic!("No entry"))?;
-        let mut ctx = ExecutionContext {
-            cache: HashMap::new(),
-        };
         let mut nodes_passed: u16 = 0;
 
         loop {
             nodes_passed += 1;
             let next_node = match self.graph.node_weight(current) {
-                Some(graph_node) => match graph_node.node.execute(&mut ctx, &self.graph, current)? {
+                Some(graph_node) => match graph_node.node.execute(&mut self.ctx, &self.graph, current)? {
                     Some(node) => node,
                     None => break,
                 },
                 _ => return Err(ScriptError::NotExecutable),
             };
-            ctx.cache.clear();
+            self.ctx.clear_cache();
 
             let next_exec = self
                 .graph

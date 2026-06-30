@@ -1,8 +1,8 @@
 mod builder;
-mod env;
+mod runtime;
 mod script;
 pub(crate) mod wrapper;
 
 pub use builder::{BuiltNode, NodeBuilder, PortBuilder};
-pub use env::VismutExecutionEnvironment;
+pub use runtime::VismutRuntime;
 pub use wrapper::{CompiledNode, CompiledPort, NodeValues};

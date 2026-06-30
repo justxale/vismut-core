@@ -5,11 +5,11 @@ use vismut_core::schemas::ScriptDataPath;
 use vismut_core::schemas::ScriptExecutionPath;
 use vismut_core::schemas::ScriptNode;
 use vismut_core::schemas::ScriptSchema;
-use vismut_core::{ScriptError, Value, VismutExecutionEnvironment};
+use vismut_core::{ScriptError, Value, VismutRuntime};
 
 #[test]
 fn run_script() -> Result<(), ScriptError> {
-    let env = VismutExecutionEnvironment::default();
+    let env = VismutRuntime::default().with_builtins();
 
     let script = ScriptSchema {
         entry: ScriptNode {

@@ -4,6 +4,7 @@ use crate::schemas::{NodeSchema, PortSchema};
 use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
 use std::collections::HashMap;
 use std::sync::Arc;
+use crate::context::RuntimeContext;
 
 pub type BuiltNode = (NodeSchema, BoxedNodeFn);
 
@@ -63,7 +64,7 @@ impl NodeBuilder {
 
     pub fn with_execution<F>(mut self, execute_fn: F) -> Self
     where
-        F: Fn(&NodeValues) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues, &RuntimeContext) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
     {
         self.execute_fn = Some(Arc::new(execute_fn));
         self
@@ -71,7 +72,7 @@ impl NodeBuilder {
 
     pub fn with_evaluation<F>(mut self, evaluate_fn: F) -> Self
     where
-        F: Fn(&NodeValues, &String) -> Result<Value, ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues, &String, &RuntimeContext) -> Result<Value, ScriptError> + Send + Sync + 'static,
     {
         self.evaluate_fn = Some(Arc::new(evaluate_fn));
         self
@@ -166,10 +167,10 @@ impl NodeBuilder {
                 CompiledNode::new(
                     self.execute_fn
                         .clone()
-                        .unwrap_or(Arc::new(|_| Err(ScriptError::NotExecutable))),
+                        .unwrap_or(Arc::new(|_, _| Err(ScriptError::NotExecutable))),
                     self.evaluate_fn
                         .clone()
-                        .unwrap_or(Arc::new(|_, _| Err(ScriptError::NotEvaluable))),
+                        .unwrap_or(Arc::new(|_, _, _| Err(ScriptError::NotEvaluable))),
                     HashMap::from_iter(inputs.iter().cloned()),
                     HashMap::from_iter(outputs.iter().cloned()),
                 )
