@@ -6,7 +6,7 @@ use crate::{ScriptError, Value};
 
 const NUMBER_TYPES: [ValueType; 3] = [ValueType::Int, ValueType::BigInt, ValueType::Float];
 
-pub fn build_add_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_add_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.add")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
@@ -27,7 +27,7 @@ pub fn build_add_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_subtract_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_subtract_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.subtract")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
@@ -48,7 +48,7 @@ pub fn build_subtract_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_multiply_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_multiply_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.multiply")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
@@ -69,7 +69,7 @@ pub fn build_multiply_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_divide_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_divide_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.divide")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
@@ -96,7 +96,7 @@ pub fn build_divide_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_pow_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_pow_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.pow")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &[ValueType::Int, ValueType::Float])
@@ -129,7 +129,7 @@ pub fn build_pow_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_rem_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_rem_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.rem")
         .with_input("a", &[ValueType::Int, ValueType::BigInt])
         .with_input("b", &[ValueType::Int])
@@ -151,7 +151,7 @@ pub fn build_rem_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_abs_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_abs_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.abs")
         .with_input("a", &NUMBER_TYPES)
         .with_output("res", &NUMBER_TYPES)
@@ -168,7 +168,7 @@ pub fn build_abs_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_math_nodes() -> Vec<(NodeSchema, BoxedNodeFn)> {
+pub fn build_math_nodes<C: Clone + 'static>() -> Vec<(NodeSchema, BoxedNodeFn<C>)> {
     vec![
         build_add_node(),
         build_divide_node(),

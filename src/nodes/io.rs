@@ -2,7 +2,7 @@ use crate::common::BoxedNodeFn;
 use crate::schemas::NodeSchema;
 use crate::{NodeBuilder, ValueType};
 
-pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_stdout_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.io.stdout")
         .with_input("value", &[ValueType::Any])
         .with_execution(|values, _| {
@@ -13,7 +13,7 @@ pub fn build_stdout_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_start_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_start_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.io.start")
         .with_execution(|_, _| Ok(Some("start")))
         .with_no_exec_input()
@@ -21,6 +21,6 @@ pub fn build_start_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_io_nodes() -> Vec<(NodeSchema, BoxedNodeFn)> {
+pub fn build_io_nodes<C: Clone + 'static>() -> Vec<(NodeSchema, BoxedNodeFn<C>)> {
     vec![build_stdout_node(), build_start_node()]
 }

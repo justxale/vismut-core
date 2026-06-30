@@ -4,9 +4,8 @@ use crate::schemas::{NodeSchema, PortSchema};
 use crate::{CompiledNode, CompiledPort, ScriptError, Value, ValueType};
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::context::RuntimeContext;
 
-pub type BuiltNode = (NodeSchema, BoxedNodeFn);
+pub type BuiltNode<C> = (NodeSchema, BoxedNodeFn<C>);
 
 pub struct PortBuilder {
     title: &'static str,
@@ -39,9 +38,9 @@ impl PortBuilder {
     }
 }
 
-pub struct NodeBuilder {
-    execute_fn: Option<ArcedExecutableFn>,
-    evaluate_fn: Option<ArcedEvaluableFn>,
+pub struct NodeBuilder<C: Clone = ()> {
+    execute_fn: Option<ArcedExecutableFn<C>>,
+    evaluate_fn: Option<ArcedEvaluableFn<C>>,
     input_ports: Vec<PortBuilder>,
     output_ports: Vec<PortBuilder>,
     exec_input_ports: Option<Vec<PortSchema>>,
@@ -49,7 +48,7 @@ pub struct NodeBuilder {
     node_id: &'static str,
 }
 
-impl NodeBuilder {
+impl<C: Clone + 'static> NodeBuilder<C> {
     pub fn new(node_id: &'static str) -> Self {
         Self {
             node_id,
@@ -64,7 +63,7 @@ impl NodeBuilder {
 
     pub fn with_execution<F>(mut self, execute_fn: F) -> Self
     where
-        F: Fn(&NodeValues, &RuntimeContext) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues, C) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
     {
         self.execute_fn = Some(Arc::new(execute_fn));
         self
@@ -72,7 +71,7 @@ impl NodeBuilder {
 
     pub fn with_evaluation<F>(mut self, evaluate_fn: F) -> Self
     where
-        F: Fn(&NodeValues, &String, &RuntimeContext) -> Result<Value, ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues, &String, C) -> Result<Value, ScriptError> + Send + Sync + 'static,
     {
         self.evaluate_fn = Some(Arc::new(evaluate_fn));
         self
@@ -148,7 +147,7 @@ impl NodeBuilder {
         NodeSchema::new(self.node_id, is_executable, is_evaluable, inputs, outputs)
     }
 
-    pub fn build(self) -> BuiltNode {
+    pub fn build(self) -> BuiltNode<C> {
         let schema = self.schema();
         let inputs: Vec<(&'static str, CompiledPort)> = self
             .input_ports

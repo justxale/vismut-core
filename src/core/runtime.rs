@@ -10,18 +10,20 @@ use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
-pub struct VismutRuntime {
-    node_fns: HashMap<String, BoxedNodeFn>,
+pub struct VismutRuntime<C: Clone = ()> {
+    node_fns: HashMap<String, BoxedNodeFn<C>>,
     node_schemas: HashMap<String, NodeSchema>,
     cached_schema: Option<RegistrySchema>,
+    ctx: C
 }
 
-impl VismutRuntime {
-    pub fn new() -> Self {
+impl<C: Clone + 'static> VismutRuntime<C> {
+    pub fn new(ctx: C) -> Self {
         Self {
             node_fns: HashMap::new(),
             node_schemas: HashMap::new(),
             cached_schema: None,
+            ctx
         }
     }
 
@@ -41,7 +43,7 @@ impl VismutRuntime {
     pub fn register(
         &mut self,
         schema: NodeSchema,
-        node_factory: BoxedNodeFn,
+        node_factory: BoxedNodeFn<C>,
     ) -> Result<&Self, RegistryError> {
         if self.node_fns.contains_key(schema.get_id()) {
             return Err(RegistryError::AlreadyRegistered);
@@ -56,7 +58,7 @@ impl VismutRuntime {
 
     pub fn include(
         &mut self,
-        node_array: Vec<(NodeSchema, BoxedNodeFn)>,
+        node_array: Vec<(NodeSchema, BoxedNodeFn<C>)>,
     ) -> Result<&Self, RegistryError> {
         let len = node_array.len();
         for (schema, boxed_fn) in node_array {
@@ -68,7 +70,7 @@ impl VismutRuntime {
         Ok(self)
     }
 
-    pub fn get_node_factory(&self, node_id: &String) -> Result<&BoxedNodeFn, RegistryError> {
+    pub fn get_node_factory(&self, node_id: &String) -> Result<&BoxedNodeFn<C>, RegistryError> {
         self.node_fns
             .get(node_id)
             .ok_or(RegistryError::NotFound(String::from(node_id)))
@@ -80,8 +82,8 @@ impl VismutRuntime {
             .ok_or(RegistryError::NotFound(String::from(node_id)))
     }
 
-    pub fn parse(&self, schema: &ScriptSchema) -> Result<VismutScript, RegistryError> {
-        let mut script = VismutScript::new();
+    pub fn parse(&self, schema: &ScriptSchema) -> Result<VismutScript<C>, RegistryError> {
+        let mut script = VismutScript::new(self.ctx.clone());
         let mut node_indexes: HashMap<String, NodeIndex> = HashMap::new();
         match self.get_node_factory(&schema.entry.node_id) {
             Err(e) => return Err(e),
@@ -160,9 +162,9 @@ impl VismutRuntime {
     }
 }
 
-impl Default for VismutRuntime {
+impl<C: Clone + Default + 'static> Default for VismutRuntime<C> {
     fn default() -> Self {
-        Self::new()
+        Self::new(C::default())
     }
 }
 

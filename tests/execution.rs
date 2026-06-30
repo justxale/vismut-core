@@ -7,11 +7,11 @@ use vismut_core::schemas::ScriptNode;
 use vismut_core::schemas::ScriptSchema;
 use vismut_core::{ScriptError, Value, VismutRuntime};
 
-#[test]
-fn run_script() -> Result<(), ScriptError> {
-    let env = VismutRuntime::default().with_builtins();
+#[derive(Debug, Clone)]
+struct TestContext {}
 
-    let script = ScriptSchema {
+fn create_script() -> ScriptSchema {
+    ScriptSchema {
         entry: ScriptNode {
             node_id: String::from("core.io.start"),
             id: String::from("7485b216-161d-425e-96ce-3e694b80fa9b"),
@@ -43,7 +43,29 @@ fn run_script() -> Result<(), ScriptError> {
             from_port: String::from("result"),
             to_port: String::from("value"),
         }],
-    };
+    }
+}
+
+#[test]
+fn run_script() -> Result<(), ScriptError> {
+    let env = VismutRuntime::<()>::default().with_builtins();
+
+    let script = create_script();
+    match env.parse(&script) {
+        Ok(mut ready) => {
+            assert_eq!(ready.run().unwrap(), 2);
+            Ok(())
+        }
+        Err(e) => Err(ScriptError::RuntimeError(e.to_string())),
+    }
+}
+
+#[test]
+fn run_script_with_context() -> Result<(), ScriptError> {
+    let ctx = TestContext {};
+    let env = VismutRuntime::<TestContext>::new(ctx).with_builtins();
+
+    let script = create_script();
     match env.parse(&script) {
         Ok(mut ready) => {
             assert_eq!(ready.run().unwrap(), 2);

@@ -2,7 +2,7 @@ use crate::common::BoxedNodeFn;
 use crate::schemas::NodeSchema;
 use crate::{NodeBuilder, ScriptError, Value, ValueType};
 
-pub fn build_sin_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_sin_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.sin")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
@@ -17,7 +17,7 @@ pub fn build_sin_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_cos_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_cos_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.cos")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
@@ -32,7 +32,7 @@ pub fn build_cos_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_tan_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_tan_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.tan")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
@@ -47,7 +47,7 @@ pub fn build_tan_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_cot_node() -> (NodeSchema, BoxedNodeFn) {
+pub fn build_cot_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.cot")
         .with_input("a", &[ValueType::Float, ValueType::Int])
         .with_output("res", &[ValueType::Float])
@@ -62,7 +62,7 @@ pub fn build_cot_node() -> (NodeSchema, BoxedNodeFn) {
         .build()
 }
 
-pub fn build_trigonometry_nodes() -> Vec<(NodeSchema, BoxedNodeFn)> {
+pub fn build_trigonometry_nodes<C: Clone + 'static>() -> Vec<(NodeSchema, BoxedNodeFn<C>)> {
     vec![
         build_sin_node(),
         build_cos_node(),

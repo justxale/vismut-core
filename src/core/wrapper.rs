@@ -1,5 +1,5 @@
 use crate::common::{ArcedEvaluableFn, ArcedExecutableFn, ScriptError};
-use crate::context::RuntimeContext;
+use crate::context::RuntimeCache;
 use crate::graph::{EdgeType, Node};
 use crate::values::Value;
 use crate::values::{ValueState, ValueType};
@@ -62,17 +62,17 @@ impl CompiledPort {
     }
 }
 
-pub struct CompiledNode {
-    execute_fn: ArcedExecutableFn,
-    evaluate_fn: ArcedEvaluableFn,
+pub struct CompiledNode<C: Clone> {
+    execute_fn: ArcedExecutableFn<C>,
+    evaluate_fn: ArcedEvaluableFn<C>,
     inputs: HashMap<&'static str, CompiledPort>,
     _outputs: HashMap<&'static str, CompiledPort>,
 }
 
-impl CompiledNode {
+impl<C: Clone> CompiledNode<C> {
     pub fn new(
-        execute_fn: ArcedExecutableFn,
-        evaluate_fn: ArcedEvaluableFn,
+        execute_fn: ArcedExecutableFn<C>,
+        evaluate_fn: ArcedEvaluableFn<C>,
         inputs: HashMap<&'static str, CompiledPort>,
         outputs: HashMap<&'static str, CompiledPort>,
     ) -> Self {
@@ -86,13 +86,14 @@ impl CompiledNode {
 
     fn get_values(
         &'_ self,
-        ctx: &mut RuntimeContext,
-        graph: &StableDiGraph<Node, EdgeType>,
+        cache: &mut RuntimeCache,
+        graph: &StableDiGraph<Node<C>, EdgeType>,
         node: NodeIndex,
+        ctx: &C
     ) -> Result<NodeValues, ScriptError> {
         let mut values = NodeValues::new();
         for (port_title, port) in &self.inputs {
-            match ctx.get_input(node, graph, port) {
+            match cache.get_input(node, graph, port, ctx) {
                 ValueState::Set(ref value) => {
                     if !port.validate(value) {
                         return Err(ScriptError::UnsupportedInput);
@@ -117,22 +118,24 @@ impl CompiledNode {
 
     pub fn execute(
         &self,
-        ctx: &mut RuntimeContext,
-        graph: &StableDiGraph<Node, EdgeType>,
+        cache: &mut RuntimeCache,
+        graph: &StableDiGraph<Node<C>, EdgeType>,
         node: NodeIndex,
+        ctx: C
     ) -> Result<Option<&'static str>, ScriptError> { 
-        self.get_values(ctx, graph, node)
+        self.get_values(cache, graph, node, &ctx)
             .map(|values| (self.execute_fn)(&values, ctx))?
     }
 
     pub fn evaluate(
         &self,
-        ctx: &mut RuntimeContext,
-        graph: &StableDiGraph<Node, EdgeType>,
+        cache: &mut RuntimeCache,
+        graph: &StableDiGraph<Node<C>, EdgeType>,
         node: NodeIndex,
         output_port: &str,
+        ctx: C
     ) -> Result<Value, ScriptError> {
-        match self.get_values(ctx, graph, node) {
+        match self.get_values(cache, graph, node, &ctx) {
             Ok(values) => (self.evaluate_fn)(&values, &output_port.to_owned(), ctx),
             Err(error) => Err(error),
         }

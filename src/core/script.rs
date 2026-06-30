@@ -1,4 +1,4 @@
-use crate::context::RuntimeContext;
+use crate::context::RuntimeCache;
 use crate::graph::{EdgeType, Node};
 use crate::{CompiledNode, ScriptError};
 use petgraph::Direction;
@@ -6,28 +6,28 @@ use petgraph::graph::NodeIndex;
 use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
 
-pub struct VismutScript {
-    graph: StableDiGraph<Node, EdgeType>,
+pub struct VismutScript<C: Clone> {
+    graph: StableDiGraph<Node<C>, EdgeType>,
     entry: Option<NodeIndex>,
-    ctx: RuntimeContext,
+    ctx: C,
 }
 
-impl VismutScript {
-    pub(crate) fn new() -> Self {
+impl<C: Clone> VismutScript<C> {
+    pub(crate) fn new(ctx: C) -> Self {
         Self {
             graph: StableDiGraph::new(),
             entry: None,
-            ctx: RuntimeContext::new()
+            ctx
         }
     }
 
-    pub(crate) fn set_entry(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
+    pub(crate) fn set_entry(&mut self, name: &String, behavior: CompiledNode<C>) -> NodeIndex {
         let idx = self.add_node(name, behavior);
         self.entry = Some(idx);
         idx
     }
 
-    pub(crate) fn add_node(&mut self, name: &String, behavior: CompiledNode) -> NodeIndex {
+    pub(crate) fn add_node(&mut self, name: &String, behavior: CompiledNode<C>) -> NodeIndex {
         self.graph.add_node(Node {
             name: name.to_string(),
             node: behavior,
@@ -49,24 +49,21 @@ impl VismutScript {
             .add_edge(from, to, EdgeType::Data { from_port, to_port });
     }
 
-    pub fn ctx(&mut self) -> &mut RuntimeContext {
-        &mut self.ctx
-    }
-
     pub fn run(&mut self) -> Result<u16, ScriptError> {
         let mut current = self.entry.ok_or_else(|| panic!("No entry"))?;
         let mut nodes_passed: u16 = 0;
+        let mut cache = RuntimeCache::new();
 
         loop {
             nodes_passed += 1;
             let next_node = match self.graph.node_weight(current) {
-                Some(graph_node) => match graph_node.node.execute(&mut self.ctx, &self.graph, current)? {
+                Some(graph_node) => match graph_node.node.execute(&mut cache, &self.graph, current, self.ctx.clone())? {
                     Some(node) => node,
                     None => break,
                 },
                 _ => return Err(ScriptError::NotExecutable),
             };
-            self.ctx.clear_cache();
+            cache.clear_cache();
 
             let next_exec = self
                 .graph

@@ -1,4 +1,3 @@
-use std::any::{Any, TypeId};
 use crate::CompiledPort;
 use crate::graph::{EdgeType, Node};
 use crate::values::{Value, ValueState};
@@ -8,43 +7,30 @@ use petgraph::prelude::StableDiGraph;
 use petgraph::visit::EdgeRef;
 use std::collections::HashMap;
 
-pub struct RuntimeContext {
+pub struct RuntimeCache {
     cache: HashMap<(NodeIndex, String), Value>,
-    ctx: HashMap<TypeId, Box<dyn Any>>
 }
 
-impl RuntimeContext {
+impl RuntimeCache {
     pub fn new() -> Self {
         Self {
             cache: HashMap::new(),
-            ctx: HashMap::new()
         }
     }
     
-    pub fn provide<T: Any>(&mut self, value: T) {
-        self.ctx.insert(TypeId::of::<T>(), Box::new(value));
-    }
-    
-    pub fn get<T: Any>(&self) -> Option<&T> {
-        self.ctx.get(&TypeId::of::<T>())?.downcast_ref()
-    }
-    
-    pub fn get_mut<T: Any>(&mut self) -> Option<&mut T> {
-        self.ctx.get_mut(&TypeId::of::<T>())?.downcast_mut()
-    }
-    
-    pub fn get_input(
+    pub fn get_input<C: Clone>(
         &mut self,
         node: NodeIndex,
-        graph: &StableDiGraph<Node, EdgeType>,
+        graph: &StableDiGraph<Node<C>, EdgeType>,
         port: &CompiledPort,
+        ctx: &C
     ) -> ValueState {
         log::debug!("Getting inputs for {}", node.index());
         for edge in graph.edges_directed(node, Direction::Incoming) {
             if let EdgeType::Data { from_port, to_port } = edge.weight()
                 && *to_port == port.title()
             {
-                return self.evaluate(edge.source(), graph, from_port);
+                return self.evaluate(edge.source(), graph, from_port, &ctx);
             }
         }
         for t in port.types() {
@@ -56,17 +42,18 @@ impl RuntimeContext {
         ValueState::Unset
     }
 
-    pub fn evaluate(
+    pub fn evaluate<C: Clone>(
         &mut self,
         node: NodeIndex,
-        graph: &StableDiGraph<Node, EdgeType>,
+        graph: &StableDiGraph<Node<C>, EdgeType>,
         output_port: &String,
+        ctx: &C
     ) -> ValueState {
         if let Some(v) = self.cache.get(&(node, output_port.to_string())) {
             return ValueState::Set(v.clone());
         }
         let behavior = &graph[node].node;
-        match behavior.evaluate(self, graph, node, output_port) {
+        match behavior.evaluate(self, graph, node, output_port, ctx.clone()) {
             Ok(v) => {
                 self.cache
                     .insert((node, output_port.to_string()), v.clone());
