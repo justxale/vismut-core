@@ -18,6 +18,7 @@ pub enum Value {
     Bool(bool),
     String(String),
     Object(HashMap<String, Value>),
+    Array(Vec<Value>),
     None,
 }
 
@@ -30,6 +31,7 @@ impl Value {
             Value::Bool(_) => ValueType::Bool,
             Value::String(_) => ValueType::String,
             Value::Object(_) => ValueType::Object,
+            Value::Array(_) => ValueType::Array,
             Value::None => ValueType::None,
         }
     }
@@ -52,6 +54,7 @@ pub enum ValueType {
     Bool,
     String,
     Object,
+    Array,
     Any,
     None,
 }

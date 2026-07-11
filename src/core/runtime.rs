@@ -1,14 +1,14 @@
+use crate::VismutScript;
+use crate::schemas::ScriptSchema;
 use crate::common::BoxedNodeFn;
 use crate::common::RegistryError;
-use crate::core::script::VismutScript;
 #[cfg(feature = "nodes")]
 use crate::nodes::{build_io_nodes, build_math_nodes};
 use crate::schemas::NodeSchema;
 use crate::schemas::RegistrySchema;
-use crate::schemas::ScriptSchema;
-use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
+use petgraph::graph::NodeIndex;
 
 pub struct VismutRuntime<C: Clone = ()> {
     node_fns: HashMap<String, BoxedNodeFn<C>>,
@@ -170,7 +170,7 @@ impl<C: Clone + Default + 'static> Default for VismutRuntime<C> {
 
 impl Debug for VismutRuntime {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("VismutExecutionEnvironment")
+        f.debug_struct("VismutRuntime")
             .field("schema", &self.get_schema())
             .field("nodes", &self.node_fns.len())
             .finish()
