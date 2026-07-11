@@ -1,4 +1,6 @@
 use crate::ScriptError;
+#[cfg(feature = "uuid")]
+use uuid::Uuid;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -20,6 +22,8 @@ pub enum Value {
     Object(HashMap<String, Value>),
     Array(Vec<Value>),
     None,
+    #[cfg(feature = "uuid")]
+    Uuid(Uuid),
 }
 
 impl Value {
@@ -33,6 +37,8 @@ impl Value {
             Value::Object(_) => ValueType::Object,
             Value::Array(_) => ValueType::Array,
             Value::None => ValueType::None,
+            #[cfg(feature = "uuid")]
+            Value::Uuid(_) => ValueType::Uuid,
         }
     }
 }
@@ -57,6 +63,8 @@ pub enum ValueType {
     Array,
     Any,
     None,
+    #[cfg(feature = "uuid")]
+    Uuid,
 }
 
 impl ValueType {
