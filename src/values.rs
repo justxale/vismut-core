@@ -11,7 +11,7 @@ use std::collections::HashMap;
 #[cfg_attr(
     feature = "serde",
     derive(Serialize, Deserialize),
-    serde(rename_all = "snake_case")
+    serde(rename_all = "snake_case", tag = "t", content = "v")
 )]
 pub enum Value {
     Int(i32),
