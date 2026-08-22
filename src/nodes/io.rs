@@ -9,15 +9,12 @@ pub fn build_stdout_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
             let v = values.get("value");
             log::debug!("core.io.stdout: {:?}", v);
             Ok(None)
-        })
+        }, "exec", Some(&["exec"]))
         .build()
 }
 
 pub fn build_start_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
-    NodeBuilder::new("core.io.start")
-        .with_execution(|_, _| Ok(Some("start")))
-        .with_no_exec_input()
-        .with_exec_output("start")
+    NodeBuilder::raw("core.io.start", |_, _| Ok(Some("start")), "start")
         .build()
 }
 

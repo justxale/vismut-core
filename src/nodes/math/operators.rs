@@ -10,7 +10,6 @@ pub fn build_add_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.add")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(0));
@@ -23,7 +22,7 @@ pub fn build_add_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
                 (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a + b as f32)),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 
@@ -31,7 +30,6 @@ pub fn build_subtract_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>)
     NodeBuilder::new("core.math.subtract")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(0));
@@ -44,7 +42,7 @@ pub fn build_subtract_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>)
                 (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a - (b as f32))),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 
@@ -52,7 +50,6 @@ pub fn build_multiply_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>)
     NodeBuilder::new("core.math.multiply")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(0));
@@ -65,7 +62,7 @@ pub fn build_multiply_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>)
                 (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a * (b as f32))),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 
@@ -73,7 +70,6 @@ pub fn build_divide_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.divide")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &NUMBER_TYPES)
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(0));
@@ -92,7 +88,7 @@ pub fn build_divide_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
                 (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a / (b as f32))),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 
@@ -100,7 +96,6 @@ pub fn build_pow_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.pow")
         .with_input("a", &NUMBER_TYPES)
         .with_input("b", &[ValueType::Int, ValueType::Float])
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(0));
@@ -125,7 +120,7 @@ pub fn build_pow_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
                 (Value::Float(a), Value::Int(b)) => Ok(Value::Float(a.powi(b))),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 
@@ -133,7 +128,6 @@ pub fn build_rem_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.rem")
         .with_input("a", &[ValueType::Int, ValueType::BigInt])
         .with_input("b", &[ValueType::Int])
-        .with_output("res", &[ValueType::Int, ValueType::BigInt])
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
             let b = values.get("b").unwrap_or(Value::Int(1));
@@ -147,14 +141,13 @@ pub fn build_rem_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
                 (Value::BigInt(a), Value::BigInt(b)) => Ok(Value::BigInt(a.overflowing_rem(b).0)),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &[ValueType::Int, ValueType::BigInt])])
         .build()
 }
 
 pub fn build_abs_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::new("core.math.abs")
         .with_input("a", &NUMBER_TYPES)
-        .with_output("res", &NUMBER_TYPES)
         .with_evaluation(|values, _, _| {
             let a = values.get("a").unwrap_or(Value::Int(0));
 
@@ -164,7 +157,7 @@ pub fn build_abs_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
                 Value::Float(a) => Ok(Value::Float(a.abs())),
                 _ => Err(ScriptError::UnsupportedInput),
             }
-        })
+        }, &[("res", &NUMBER_TYPES)])
         .build()
 }
 

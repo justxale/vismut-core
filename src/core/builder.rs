@@ -43,9 +43,10 @@ pub struct NodeBuilder<C: Clone = ()> {
     evaluate_fn: Option<ArcedEvaluableFn<C>>,
     input_ports: Vec<PortBuilder>,
     output_ports: Vec<PortBuilder>,
-    exec_input_ports: Option<Vec<PortSchema>>,
+    exec_input_port: Option<PortSchema>,
     exec_output_ports: Option<Vec<PortSchema>>,
     node_id: &'static str,
+    is_raw: bool
 }
 
 impl<C: Clone + 'static> NodeBuilder<C> {
@@ -56,24 +57,53 @@ impl<C: Clone + 'static> NodeBuilder<C> {
             evaluate_fn: None,
             input_ports: Vec::new(),
             output_ports: Vec::new(),
-            exec_input_ports: Some(Vec::new()),
+            exec_input_port: None,
             exec_output_ports: Some(Vec::new()),
+            is_raw: false
         }
     }
 
-    pub fn with_execution<F>(mut self, execute_fn: F) -> Self
+    pub fn raw<F>(node_id: &'static str, execute_fn: F, output_title: &'static str) -> Self<>
     where
-        F: Fn(&NodeValues, C) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
+        F: Fn(&NodeValues, C) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static
     {
-        self.execute_fn = Some(Arc::new(execute_fn));
-        self
+        let mut builder = Self {
+            node_id,
+            execute_fn: None,
+            evaluate_fn: None,
+            input_ports: Vec::new(),
+            output_ports: Vec::new(),
+            exec_input_port: None,
+            exec_output_ports: Some(Vec::new()),
+            is_raw: true
+        };
+        builder.execute_fn = Some(Arc::new(execute_fn));
+        builder.exec_output_ports = Some(vec![PortSchema::execution(output_title)]);
+        builder
     }
 
-    pub fn with_evaluation<F>(mut self, evaluate_fn: F) -> Self
+    pub fn with_evaluation<F>(
+        mut self, evaluate_fn: F,
+        outputs: &[(&'static str, &[ValueType])]
+    ) -> Self
     where
         F: Fn(&NodeValues, &String, C) -> Result<Value, ScriptError> + Send + Sync + 'static,
     {
+        self.output_ports.extend(outputs.iter().map(|(title, types)| PortBuilder::new(title).with_types(types)));
         self.evaluate_fn = Some(Arc::new(evaluate_fn));
+        self
+    }
+
+    pub fn with_execution<F>(mut self, execute_fn: F, input_title: &'static str, outputs: Option<&[&'static str]>) -> Self
+    where
+        F: Fn(&NodeValues, C) -> Result<Option<&'static str>, ScriptError> + Send + Sync + 'static,
+    {
+        if self.is_raw {
+            panic!("Cannot add execution workflow to node, that marked as raw")
+        }
+        self.execute_fn = Some(Arc::new(execute_fn));
+        self.exec_input_port = Some(PortSchema::execution(input_title));
+        self.exec_output_ports = outputs.map(|v| v.iter().map(|v| PortSchema::execution(v)).collect());
         self
     }
 
@@ -86,62 +116,17 @@ impl<C: Clone + 'static> NodeBuilder<C> {
         self
     }
 
-    pub fn with_exec_input(mut self, title: &'static str) -> Self {
-        if self.exec_input_ports.is_none() {
-            self.exec_input_ports = Some(Vec::new());
-        }
-        self.exec_input_ports
-            .as_mut()
-            .unwrap()
-            .push(PortSchema::execution(title));
-        self
-    }
-
-    pub fn with_no_exec_input(mut self) -> Self {
-        self.exec_input_ports = None;
-        self
-    }
-
-    pub fn with_output(mut self, title: &'static str, returned_types: &[ValueType]) -> Self {
-        self.input_ports
-            .push(PortBuilder::new(title).with_types(returned_types));
-        self
-    }
-
-    pub fn with_exec_output(mut self, title: &'static str) -> Self {
-        if self.exec_output_ports.is_none() {
-            self.exec_output_ports = Some(Vec::new());
-        }
-        self.exec_output_ports
-            .as_mut()
-            .unwrap()
-            .push(PortSchema::execution(title));
-        self
-    }
-
-    pub fn with_no_exec_output(mut self) -> Self {
-        self.exec_output_ports = None;
-        self
-    }
-
     fn schema(&self) -> NodeSchema {
         let is_executable = self.execute_fn.is_some();
         let is_evaluable = self.evaluate_fn.is_some();
         let mut inputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
-        let mut outputs: Vec<PortSchema> = self.input_ports.iter().map(PortSchema::from).collect();
-
-        if let Some(_) = self.execute_fn
-            && let Some(ref v) = self.exec_input_ports
-        {
-            v.is_empty()
-                .then(|| inputs.push(PortSchema::execution("exec")));
+        if let Some(exec) = &self.exec_input_port {
+            inputs.push(exec.clone());
         }
 
-        if let Some(_) = self.execute_fn
-            && let Some(ref v) = self.exec_output_ports
-        {
-            v.is_empty()
-                .then(|| outputs.push(PortSchema::execution("exec")));
+        let mut outputs: Vec<PortSchema> = self.output_ports.iter().map(PortSchema::from).collect();
+        if let Some(exec) = &self.exec_output_ports {
+            outputs.extend_from_slice(exec)
         }
 
         NodeSchema::new(self.node_id, is_executable, is_evaluable, inputs, outputs)
