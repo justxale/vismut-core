@@ -162,3 +162,14 @@ impl<C: Clone + 'static> NodeBuilder<C> {
         )
     }
 }
+
+#[macro_export]
+macro_rules! extract {
+    ($source:expr, $t:path, $name:literal) => {
+        if let Some($t(value)) = $source.get($name) {
+            value
+        } else {
+            return Err(crate::ScriptError::MissingInput($name.to_string()));
+        }
+    };
+}
