@@ -1,3 +1,5 @@
+use crate::Value;
+use crate::extract;
 use crate::common::BoxedNodeFn;
 use crate::schemas::NodeSchema;
 use crate::{NodeBuilder, ValueType};
@@ -15,6 +17,21 @@ pub fn build_stdout_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
 
 pub fn build_start_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
     NodeBuilder::raw("core.io.start", |_, _| Ok(Some("start")), "start")
+        .build()
+}
+
+pub fn build_branching_node<C: Clone + 'static>() -> (NodeSchema, BoxedNodeFn<C>) {
+    NodeBuilder::new("core.io.if")
+        .with_input("condition", &[ValueType::Bool])
+        .with_execution(|values, _| {
+            let v = extract!(values, Value::Bool, "condition");
+            if v {
+                Ok(Some("true"))
+            } else {
+                Ok(Some("false"))
+            }
+
+        }, "exec", Some(&["true", "false"]))
         .build()
 }
 
